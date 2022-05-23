@@ -1,0 +1,51 @@
+QMainWindow {
+    background: #33373B;
+}
+
+QHeaderView::section {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #616161, stop: 0.5 #505050,
+                                      stop: 0.6 #434343, stop:1 #656565);
+    color: white;
+    padding-left: 4px;
+    border: 1px solid #6c6c6c;
+}
+
+QTreeWidget {
+    color: #FFFFFF;
+    background-color: #33373B;
+}
+
+QTreeWidget::item {
+    height: 50px;
+}
+
+QTreeWidget::item:selected {
+    background-color: #2ABf9E;
+}
+
+QPushButton {
+    background-color: #2ABf9E;
+    padding: 20px;
+    font-size: 12px;
+}
+
+QPushButton[accessibleName="load_or_save_button"] {
+    background-color: #FF5733;
+    padding: 20px;
+    font-size: 12px;
+}
+
+QTabWidget { /* The tab widget frame */
+    background: #33373B;
+}
+
+/* Style the tab using the tab sub-control. Note that
+    it reads QTabBar _not_ QTabWidget */
+QTabBar::tab {
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+}

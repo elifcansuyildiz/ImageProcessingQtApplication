@@ -1,9 +1,10 @@
 import sys
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QApplication, QTabWidget
+from PySide6.QtWidgets import QApplication, QTabWidget, QGraphicsScene
 
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, Qt
+from PySide6.QtGui import QPixmap, QIcon
 
 class MyApplication():
     def __init__(self):
@@ -15,13 +16,20 @@ class MyApplication():
     def mainwindow_setup(self, w):
         w.setWindowTitle("Image Processing")
 
+        app_icon = QIcon()
+        app_icon.addFile('star_white.png')
+        w.setWindowIcon(app_icon)
+
         w.load_button.clicked.connect(lambda l: self.load_button_event())
         w.save_button.clicked.connect(lambda l: self.save_button_event())
         w.reset_button.clicked.connect(lambda l: self.reset_button_event())
         w.undo_button.clicked.connect(lambda l: self.undo_button_event())
 
         w.treeWidget.itemClicked.connect(self.item_clicked_event)
-        #w.treeWidget.expandAll()
+        w.treeWidget.expandAll()
+        pixmap = QPixmap("star_white.png")
+        w.icon_label.setScaledContents(True)
+        w.icon_label.setPixmap(pixmap)
 
     @Slot()
     def load_button_event(self):
@@ -45,19 +53,27 @@ class MyApplication():
         item_name = position.text(column)
         print(item_name)
         if item_name == "Fish Eye Effect":
-            self.window.tabWidget.setCurrentIndex(0)
-        elif item_name == "Swirl Effect":
             self.window.tabWidget.setCurrentIndex(1)
-        elif item_name == "Waves Effect":
+        elif item_name == "Swirl Effect":
             self.window.tabWidget.setCurrentIndex(2)
-        elif item_name == "Cylinder Anamorphosis":
+        elif item_name == "Waves Effect":
             self.window.tabWidget.setCurrentIndex(3)
-        elif item_name == "Radial Blur Effect":
+        elif item_name == "Cylinder Anamorphosis":
             self.window.tabWidget.setCurrentIndex(4)
-        elif item_name == "Perspective Mapping":
+        elif item_name == "Radial Blur Effect":
             self.window.tabWidget.setCurrentIndex(5)
-        elif item_name == "Custom Effect":
+        elif item_name == "Perspective Mapping":
             self.window.tabWidget.setCurrentIndex(6)
+        elif item_name == "Custom Effect":
+            self.window.tabWidget.setCurrentIndex(7)
+        elif item_name == "Median Blurring":
+            self.window.tabWidget.setCurrentIndex(8)
+        elif item_name == "Gaussian Filtering":
+            self.window.tabWidget.setCurrentIndex(9)
+        elif item_name == "Bilateral Filter":
+            self.window.tabWidget.setCurrentIndex(10)
+        elif item_name == "About":
+            self.window.tabWidget.setCurrentIndex(0)
 
 if __name__ == "__main__":
 

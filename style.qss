@@ -14,6 +14,7 @@ QHeaderView::section {
 QTreeWidget {
     color: #FFFFFF;
     background-color: #33373B;
+    selection-background-color: transparent;   /* If we remove this line, the background color becomes blue  */
 }
 
 QTreeWidget::item {
@@ -24,15 +25,27 @@ QTreeWidget::item:selected {
     background-color: #2ABf9E;
 }
 
-QPushButton {
+QPushButton[accessibleName="reset_or_undo_button"] {
     background-color: #2ABf9E;
     padding: 20px;
     font-size: 12px;
 }
 
 QPushButton[accessibleName="load_or_save_button"] {
-    background-color: #FF5733;
+    background-color: #439AE5;
     padding: 20px;
+    font-size: 12px;
+}
+
+QPushButton[accessibleName="tab_button"] {
+    background-color: #439AE5;
+    padding: 20px;
+    font-size: 12px;
+}
+
+QPushButton[accessibleName="perspective_mapping_select_button"] {
+    background-color: #2ABf9E;
+    padding: 8px;
     font-size: 12px;
 }
 
@@ -48,4 +61,16 @@ QTabBar::tab {
     margin: 0;
     padding: 0;
     border: none;
+}
+
+QLabel {
+    color: white
+}
+
+QLabel[accessibleName="second_title"] {
+    color: #439AE5
+}
+
+QLabel[accessibleName="info_label"] {
+    color: #949697
 }

@@ -1,10 +1,10 @@
 import sys
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QApplication, QTabWidget, QGraphicsScene
+from PySide6.QtWidgets import QApplication, QTabWidget, QGraphicsScene, QFileDialog, QMessageBox
 
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import Slot, Qt
-from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtCore import Slot, Qt, QDir
+from PySide6.QtGui import QPixmap, QIcon, QImageReader, QGuiApplication
 
 class MyApplication():
     def __init__(self):
@@ -15,6 +15,7 @@ class MyApplication():
 
     def mainwindow_setup(self, w):
         w.setWindowTitle("Image Processing")
+        w.resize(1000,800)
 
         app_icon = QIcon()
         app_icon.addFile('star_white.png')
@@ -27,12 +28,27 @@ class MyApplication():
 
         w.treeWidget.itemClicked.connect(self.item_clicked_event)
         w.treeWidget.expandAll()
+
         pixmap = QPixmap("star_white.png")
         w.icon_label.setScaledContents(True)
         w.icon_label.setPixmap(pixmap)
 
     @Slot()
     def load_button_event(self):
+        self.image_file_name = QFileDialog.getOpenFileName(self.window, "Open Image", ".", "Image Files (*.png *.jpg *.bmp)")
+        reader = QImageReader(self.image_file_name[0])
+        reader.setAutoTransform(True)
+        new_image = reader.read()
+        if (new_image.isNull()):
+            print("Image not found")
+
+        self.scene = QGraphicsScene()
+        pixmap = QPixmap.fromImage(new_image)
+
+        self.scene.addPixmap(pixmap)
+        self.window.graphicsView.setScene(self.scene)
+        item = self.window.graphicsView.items()
+        self.window.graphicsView.fitInView(item[0],Qt.KeepAspectRatio)
         print("loaded")
 
     @Slot()

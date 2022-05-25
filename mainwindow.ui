@@ -163,6 +163,9 @@
              </item>
              <item>
               <widget class="QPushButton" name="undo_button">
+               <property name="toolTip">
+                <string>Undo the last applied effect</string>
+               </property>
                <property name="accessibleName">
                 <string>reset_or_undo_button</string>
                </property>
@@ -189,7 +192,7 @@
           <string>tab</string>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab_11">
           <attribute name="title">
@@ -448,24 +451,24 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
            <item>
             <layout class="QGridLayout" name="gridLayout">
              <item row="2" column="3">
-              <widget class="QDoubleSpinBox" name="doubleSpinBox_14"/>
+              <widget class="QDoubleSpinBox" name="fisheye_sigma_spinbox"/>
              </item>
              <item row="1" column="2">
-              <widget class="QSlider" name="horizontalSlider_10">
+              <widget class="QSlider" name="fisheye_y_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QSlider" name="horizontalSlider_9">
+              <widget class="QSlider" name="fisheye_sigma_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
               </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QSpinBox" name="spinBox_7"/>
+              <widget class="QSpinBox" name="fisheye_y_spinbox"/>
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label_9">
@@ -488,7 +491,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QSlider" name="horizontalSlider_8">
+              <widget class="QSlider" name="fisheye_x_slider">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>100</horstretch>
@@ -501,10 +504,10 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QSpinBox" name="spinBox_8"/>
+              <widget class="QSpinBox" name="fisheye_x_spinbox"/>
              </item>
              <item row="1" column="5">
-              <widget class="QPushButton" name="pushButton_2">
+              <widget class="QPushButton" name="fisheye_apply_button">
                <property name="accessibleName">
                 <string>tab_button</string>
                </property>
@@ -626,7 +629,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </spacer>
              </item>
              <item row="1" column="2">
-              <widget class="QSlider" name="horizontalSlider_11">
+              <widget class="QSlider" name="swirl_y_slider">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>100</horstretch>
@@ -639,7 +642,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QSlider" name="horizontalSlider_14">
+              <widget class="QSlider" name="swirl_magnitude_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -656,13 +659,13 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QDoubleSpinBox" name="doubleSpinBox_13"/>
+              <widget class="QDoubleSpinBox" name="swirl_magnitude_spinbox"/>
              </item>
              <item row="1" column="3">
-              <widget class="QSpinBox" name="spinBox_6"/>
+              <widget class="QSpinBox" name="swirl_y_spinbox"/>
              </item>
              <item row="2" column="2">
-              <widget class="QSlider" name="horizontalSlider_13">
+              <widget class="QSlider" name="swirl_sigma_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -689,7 +692,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QSpinBox" name="spinBox_5"/>
+              <widget class="QSpinBox" name="swirl_x_spinbox"/>
              </item>
              <item row="1" column="4">
               <spacer name="horizontalSpacer_20">
@@ -705,14 +708,14 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </spacer>
              </item>
              <item row="0" column="2">
-              <widget class="QSlider" name="horizontalSlider_12">
+              <widget class="QSlider" name="swirl_x_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QDoubleSpinBox" name="doubleSpinBox_12"/>
+              <widget class="QDoubleSpinBox" name="swirl_sigma_spinbox"/>
              </item>
              <item row="3" column="1">
               <widget class="QLabel" name="label_11">
@@ -805,7 +808,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
             </layout>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_3">
+            <widget class="QPushButton" name="swirl_apply_button">
              <property name="accessibleName">
               <string>tab_button</string>
              </property>
@@ -824,7 +827,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
            <item>
             <layout class="QGridLayout" name="gridLayout_3">
              <item row="1" column="2">
-              <widget class="QSlider" name="horizontalSlider_15">
+              <widget class="QSlider" name="waves_y_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -864,7 +867,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </spacer>
              </item>
              <item row="1" column="5">
-              <widget class="QPushButton" name="pushButton_4">
+              <widget class="QPushButton" name="waves_apply_button">
                <property name="accessibleName">
                 <string>tab_button</string>
                </property>
@@ -874,7 +877,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QDoubleSpinBox" name="doubleSpinBox_11"/>
+              <widget class="QDoubleSpinBox" name="waves_sigma_spinbox"/>
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label_12">
@@ -887,7 +890,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QSpinBox" name="spinBox_4"/>
+              <widget class="QSpinBox" name="waves_x_spinbox"/>
              </item>
              <item row="0" column="4">
               <spacer name="horizontalSpacer_11">
@@ -916,17 +919,17 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </spacer>
              </item>
              <item row="1" column="3">
-              <widget class="QSpinBox" name="spinBox_3"/>
+              <widget class="QSpinBox" name="waves_y_spinbox"/>
              </item>
              <item row="2" column="2">
-              <widget class="QSlider" name="horizontalSlider_17">
+              <widget class="QSlider" name="waves_sigma_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QSlider" name="horizontalSlider_16">
+              <widget class="QSlider" name="waves_x_slider">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>100</horstretch>
@@ -1010,7 +1013,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox">
+               <widget class="QComboBox" name="cylinder_combobox">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                   <horstretch>100</horstretch>
@@ -1046,7 +1049,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="cylinder_apply_button">
              <property name="accessibleName">
               <string>tab_button</string>
              </property>
@@ -1089,7 +1092,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                </widget>
               </item>
               <item>
-               <widget class="QSlider" name="horizontalSlider">
+               <widget class="QSlider" name="radial_sigma_slider">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>100</horstretch>
@@ -1102,7 +1105,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+               <widget class="QDoubleSpinBox" name="radial_sigma_spinbox"/>
               </item>
               <item>
                <spacer name="horizontalSpacer_44">
@@ -1121,7 +1124,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_7">
+            <widget class="QPushButton" name="radial_apply_button">
              <property name="accessibleName">
               <string>tab_button</string>
              </property>
@@ -1185,7 +1188,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="spinBox_9"/>
+                     <widget class="QSpinBox" name="persmap_x1_spinbox"/>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_34">
@@ -1201,10 +1204,10 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="spinBox_12"/>
+                     <widget class="QSpinBox" name="persmap_y1_spinbox"/>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_11">
+                     <widget class="QPushButton" name="persmap_select1_button">
                       <property name="accessibleName">
                        <string>perspective_mapping_select_button</string>
                       </property>
@@ -1249,7 +1252,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="spinBox_13"/>
+                     <widget class="QSpinBox" name="persmap_x2_spinbox"/>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_36">
@@ -1265,10 +1268,10 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="spinBox_14"/>
+                     <widget class="QSpinBox" name="persmap_y2_spinbox"/>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_12">
+                     <widget class="QPushButton" name="persmap_select2_button">
                       <property name="accessibleName">
                        <string>perspective_mapping_select_button</string>
                       </property>
@@ -1319,7 +1322,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="spinBox_10"/>
+                     <widget class="QSpinBox" name="persmap_x3_spinbox"/>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_38">
@@ -1335,10 +1338,10 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="spinBox_11"/>
+                     <widget class="QSpinBox" name="persmap_y3_spinbox"/>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_13">
+                     <widget class="QPushButton" name="persmap_select3_button">
                       <property name="accessibleName">
                        <string>perspective_mapping_select_button</string>
                       </property>
@@ -1383,7 +1386,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="spinBox_15"/>
+                     <widget class="QSpinBox" name="persmap_x4_spinbox"/>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_40">
@@ -1399,10 +1402,10 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="spinBox_16"/>
+                     <widget class="QSpinBox" name="persmap_y4_spinbox"/>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_14">
+                     <widget class="QPushButton" name="persmap_select4_button">
                       <property name="accessibleName">
                        <string>perspective_mapping_select_button</string>
                       </property>
@@ -1466,7 +1469,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_5">
+                     <widget class="QPushButton" name="persmap_load_button">
                       <property name="toolTip">
                        <string/>
                       </property>
@@ -1479,7 +1482,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_6">
+                     <widget class="QPushButton" name="persmap_reset_button">
                       <property name="accessibleName">
                        <string>perspective_mapping_select_button</string>
                       </property>
@@ -1505,7 +1508,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGraphicsView" name="graphicsView_2"/>
+                  <widget class="QGraphicsView" name="persmap_graphicsView"/>
                  </item>
                  <item>
                   <spacer name="horizontalSpacer">
@@ -1540,7 +1543,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_15">
+            <widget class="QPushButton" name="persmap_apply_button">
              <property name="accessibleName">
               <string>tab_button</string>
              </property>
@@ -1572,7 +1575,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </spacer>
              </item>
              <item row="3" column="2">
-              <widget class="QSlider" name="horizontalSlider_24">
+              <widget class="QSlider" name="customeffect_magnitude_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1585,7 +1588,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               <widget class="QDoubleSpinBox" name="doubleSpinBox_9"/>
              </item>
              <item row="1" column="2">
-              <widget class="QSlider" name="horizontalSlider_22">
+              <widget class="QSlider" name="customeffect_y_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1625,7 +1628,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QSlider" name="horizontalSlider_25">
+              <widget class="QSlider" name="customeffect_sigma_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1684,7 +1687,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QSlider" name="horizontalSlider_23">
+              <widget class="QSlider" name="customeffect_x_slider">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>100</horstretch>
@@ -1751,7 +1754,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
             </layout>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_10">
+            <widget class="QPushButton" name="customeffect_apply_button">
              <property name="accessibleName">
               <string>tab_button</string>
              </property>

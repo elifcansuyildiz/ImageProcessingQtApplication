@@ -49,6 +49,13 @@ QPushButton[accessibleName="perspective_mapping_select_button"] {
     font-size: 12px;
 }
 
+QPushButton:disabled{
+    background-color: #A9D8D2;
+    padding: 20px;
+    font-size: 12px;
+    color: gray;
+}
+
 QTabWidget { /* The tab widget frame */
     background: #33373B;
 }

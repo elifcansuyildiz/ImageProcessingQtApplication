@@ -31,10 +31,11 @@ class Worker(QRunnable):
         self.mutex = QMutex()
         self.f = None
         self.params = None
+        self.threadpool = QThreadPool()
 
     @Slot()
     def run(self):
-        print("thread started")
+        print("Worker started")
         while not self.terminate:
             try:
                 self.new_data_arrived.wait(timeout=1)
@@ -48,9 +49,23 @@ class Worker(QRunnable):
                 params = self.params
                 self.mutex.unlock()
 
-                output = f(*params)
+                if len(params[0].shape)==2:
+                    output = f(*params)
+                elif len(params[0].shape)==3:
+                    finished_events = []
+                    output = []
+                    for i in range(params[0].shape[2]):
+                        output.append(None)
+                        e = Event()
+                        finished_events.append(e)
+                        params_ = (params[0][:,:,i], *(params[1:]))
+                        temp_worker = TemporaryWorker(f, params_, output, i, e)
+                        self.threadpool.start(temp_worker)
+                    for e in finished_events:
+                        e.wait()
+                    output = np.stack(output, axis=2)
                 self.signals.processed.emit(np.array(output))
-        print("thread stopped")
+        print("Worker stopped")
 
     @Slot(object, object)
     def process(self, f, parameters):
@@ -60,6 +75,21 @@ class Worker(QRunnable):
         self.new_data_arrived.set()
         self.mutex.unlock()
 
+class TemporaryWorker(QRunnable):
+    def __init__(self, f, params, output, idx, finished_event):
+        super(TemporaryWorker, self).__init__()
+        self.f = f
+        self.params = params
+        self.output = output
+        self.idx = idx
+        self.finished_event = finished_event
+
+    @Slot()
+    def run(self):
+        #print("TemporaryWorker started")
+        self.output[self.idx] = self.f(*self.params)
+        self.finished_event.set()
+        #print("TemporaryWorker stopped")
 
 class MyApplication():
     def __init__(self):
@@ -239,6 +269,7 @@ class MyApplication():
         self.parameters[effect_name][parameter_name] = value
         if self.image is not None:
             self.update_image(effect_name)
+            print("update_image_function called")
 
     def update_image(self, effect_name):
         if effect_name=="fisheye":
@@ -373,7 +404,7 @@ class MyApplication():
         item = self.window.graphicsView.items()
         self.window.graphicsView.fitInView(item[0],Qt.KeepAspectRatio)
 
-        self.image = self.image_read(self.image_file_name[0], pilmode="L") / 255.0
+        self.image = self.image_read(self.image_file_name[0], pilmode="RGB") / 255.0
         plt.imshow(self.image, cmap="gray")
         #plt.show() 
 

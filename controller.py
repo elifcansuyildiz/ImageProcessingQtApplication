@@ -11,13 +11,68 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import ImageQt, Image
 
+import time
+from queue import Queue
+from PySide6.QtCore import QRunnable, Slot, QThreadPool, Signal, QObject, QMutex
+from threading import Event
+
 import model
+
+class WorkerSignals(QObject):
+    processed = Signal(object)
+    terminated = Signal()
+
+class Worker(QRunnable):
+    def __init__(self):
+        super(Worker, self).__init__()
+        self.signals = WorkerSignals()
+        self.terminate = False
+        self.new_data_arrived = Event()
+        self.mutex = QMutex()
+        self.f = None
+        self.params = None
+
+    @Slot()
+    def run(self):
+        print("thread started")
+        while not self.terminate:
+            try:
+                self.new_data_arrived.wait(timeout=1)
+            except:
+                pass
+
+            if self.new_data_arrived.is_set():
+                self.mutex.lock()
+                self.new_data_arrived.clear()
+                f = self.f
+                params = self.params
+                self.mutex.unlock()
+
+                output = f(*params)
+                self.signals.processed.emit(np.array(output))
+        print("thread stopped")
+
+    @Slot(object, object)
+    def process(self, f, parameters):
+        self.mutex.lock()
+        self.f = f
+        self.params = parameters
+        self.new_data_arrived.set()
+        self.mutex.unlock()
 
 
 class MyApplication():
     def __init__(self):
         loader = QUiLoader()
         self.window = loader.load("mainwindow.ui", None)
+
+        #For threading
+        QApplication.instance().aboutToQuit.connect(self.exit_handler)
+        self.threadpool = QThreadPool()
+        self.worker = Worker()
+        self.threadpool.start(self.worker)
+        self.worker.signals.processed.connect(self.update_image_view, Qt.QueuedConnection)
+
 
         self.image = None
 
@@ -61,6 +116,10 @@ class MyApplication():
 
         self.mainwindow_setup()
         self.window.show()
+
+    # For threading
+    def exit_handler(self):
+        self.worker.terminate = True
 
     def mainwindow_setup(self):
         w = self.window
@@ -185,22 +244,27 @@ class MyApplication():
         if effect_name=="fisheye":
             center_point = (self.parameters[effect_name]["y"],self.parameters[effect_name]["x"])
             sigma = self.parameters[effect_name]["sigma"]
-            output_image = model.fisheye_effect(self.image, center_point, sigma)
+            #output_image = model.fisheye_effect(self.image, center_point, sigma)
+            self.worker.process(model.fisheye_effect, (self.image, center_point, sigma))
 
         elif effect_name=="swirl":
             center_point = (self.parameters[effect_name]["y"],self.parameters[effect_name]["x"])
             sigma = self.parameters[effect_name]["sigma"]
             magnitude = self.parameters[effect_name]["magnitude"]
-            output_image = model.swirl_effect(self.image, center_point, sigma, magnitude)
+            #output_image = model.swirl_effect(self.image, center_point, sigma, magnitude)
+            self.worker.process(model.swirl_effect, (self.image, center_point, sigma, magnitude))
 
         elif effect_name=="waves":
             amplitude = [self.parameters[effect_name]["amplitude"], self.parameters[effect_name]["amplitude"]]
             frequency = [self.parameters[effect_name]["frequency"], self.parameters[effect_name]["frequency"]]
             phase = [self.parameters[effect_name]["phase"], self.parameters[effect_name]["phase"]]
-            output_image = model.waves_effect(self.image, amplitude, frequency, phase)
+            #output_image = model.waves_effect(self.image, amplitude, frequency, phase)
+            self.worker.process(model.waves_effect, (self.image, amplitude, frequency, phase))
 
         elif effect_name=="radial_blur":
-            output_image = model.radial_blur_effect(self.image, sigma=self.parameters[effect_name]["sigma"])
+            self.worker.process(model.radial_blur_effect, (self.image, self.parameters[effect_name]["sigma"]))
+            #output_image = model.radial_blur_effect(self.image, sigma=self.parameters[effect_name]["sigma"])
+
         #elif effect_name=="pers_mapping":
             #print(output_image.min(), output_image.max())
 
@@ -208,15 +272,17 @@ class MyApplication():
             center_point = (self.parameters[effect_name]["y"],self.parameters[effect_name]["x"])
             sigma = self.parameters[effect_name]["sigma"]
             p_value = self.parameters[effect_name]["p_value"]
-            output_image = model.square_eye_effect(self.image, center_point, sigma, p_value)
+            #output_image = model.square_eye_effect(self.image, center_point, sigma, p_value)
+            self.worker.process(model.square_eye_effect, (self.image, center_point, sigma, p_value))
 
 
-        self.update_image_view(output_image)
-
-
+    # For threading
+    @Slot(object)
     def update_image_view(self, output_image):
         if np.issubdtype(output_image.dtype, np.floating):
             output_image = (output_image*255).astype(np.uint8)
+
+        #self.image = output_image
 
         view_image = ImageQt.ImageQt( Image.fromarray(output_image) ) # convert output_image to qimage
         pixmap = QPixmap.fromImage(view_image)
@@ -430,6 +496,7 @@ class MyApplication():
         return imageio.imread(file_name, pilmode=pilmode).astype(arrtype)
 
     def image_write(self, image, file_name, arrtype=np.uint8):
+        print(image.dtype)
         imageio.imwrite(file_name, np.array(image).astype(arrtype))
 
 

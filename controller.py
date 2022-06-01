@@ -4,10 +4,14 @@ from PySide6.QtWidgets import QApplication, QTabWidget, QGraphicsScene, QFileDia
 
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import Slot, Qt, QDir
-from PySide6.QtGui import QPixmap, QIcon, QImageReader, QGuiApplication, QPainter
+from PySide6.QtGui import QPixmap, QIcon, QImageReader, QGuiApplication, QPainter, QImage
 
 import imageio
 import numpy as np
+import matplotlib.pyplot as plt
+from PIL import ImageQt, Image
+
+import model
 
 
 class MyApplication():
@@ -22,7 +26,7 @@ class MyApplication():
 
         self.effects_to_tab_idx = {"Fish Eye Effect":1, "Swirl Effect":2, "Waves Effect":3, 
                                    "Cylinder Anamorphosis":4, "Radial Blur Effect":5,
-                                   "Perspective Mapping":6, "Custom Effect":7, "Median Blurring":8,
+                                   "Perspective Mapping":6, "Square Eye Effect":7, "Median Blurring":8,
                                    "Gaussian Filtering":9, "Bilateral Filter":10, "About":0}
 
         self.parameters = self.get_default_parameters()
@@ -33,8 +37,8 @@ class MyApplication():
         self.swirl_effect_parameters = [self.window.swirl_x_slider, self.window.swirl_y_slider, self.window.swirl_sigma_slider, self.window.swirl_magnitude_slider,
                                           self.window.swirl_x_spinbox, self.window.swirl_y_spinbox, self.window.swirl_sigma_spinbox, self.window.swirl_magnitude_spinbox]
 
-        self.waves_effect_parameters = [self.window.waves_x_slider, self.window.waves_y_slider, self.window.waves_sigma_slider,
-                                          self.window.waves_x_spinbox, self.window.waves_y_spinbox, self.window.waves_sigma_spinbox]
+        self.waves_effect_parameters = [self.window.waves_amplitude_slider, self.window.waves_freq_slider, self.window.waves_phase_slider,
+                                          self.window.waves_amplitude_spinbox, self.window.waves_freq_spinbox, self.window.waves_phase_spinbox]
 
         self.cylinder_effect_parameters = [self.window.cylinder_combobox]
 
@@ -43,8 +47,8 @@ class MyApplication():
         self.pers_mapping_parameters = [self.window.persmap_x1_spinbox, self.window.persmap_y1_spinbox, self.window.persmap_x2_spinbox, self.window.persmap_y2_spinbox,
                                         self.window.persmap_x3_spinbox, self.window.persmap_y3_spinbox, self.window.persmap_x4_spinbox, self.window.persmap_y4_spinbox]
 
-        self.custom_effect_parameters = [self.window.customeffect_x_slider, self.window.customeffect_y_slider, self.window.customeffect_sigma_slider, self.window.customeffect_magnitude_slider,
-                                         self.window.customeffect_x_spinbox, self.window.customeffect_y_spinbox, self.window.customeffect_sigma_spinbox, self.window.customeffect_magnitude_spinbox]
+        self.square_eye_effect_parameters = [self.window.square_eye_x_slider, self.window.square_eye_y_slider, self.window.square_eye_sigma_slider, self.window.square_eye_p_slider,
+                                         self.window.square_eye_x_spinbox, self.window.square_eye_y_spinbox, self.window.square_eye_sigma_spinbox, self.window.square_eye_p_spinbox]
 
         self.tabs_to_apply_buttons_and_params = {
                                       "Fish Eye Effect": {"button":self.window.fisheye_apply_button, "params":self.fisheye_effect_parameters},
@@ -53,7 +57,7 @@ class MyApplication():
                                       "Cylinder Anamorphosis": {"button":self.window.cylinder_apply_button, "params":self.cylinder_effect_parameters},
                                       "Radial Blur Effect": {"button":self.window.radial_apply_button, "params":self.radial_blur_effect_parameters},
                                       "Perspective Mapping": {"button":self.window.persmap_apply_button, "params":self.pers_mapping_parameters},
-                                      "Custom Effect":{"button":self.window.customeffect_apply_button, "params":self.custom_effect_parameters}}
+                                      "Square Eye Effect":{"button":self.window.square_eye_apply_button, "params":self.square_eye_effect_parameters}}
 
         self.mainwindow_setup()
         self.window.show()
@@ -73,7 +77,7 @@ class MyApplication():
                               w.fisheye_apply_button, w.swirl_apply_button,
                               w.waves_apply_button, w.cylinder_apply_button,
                               w.radial_apply_button, w.persmap_apply_button,
-                              w.customeffect_apply_button])
+                              w.square_eye_apply_button])
 
         pixmap = QPixmap("star_white.png")
         w.icon_label.setScaledContents(True)
@@ -116,17 +120,17 @@ class MyApplication():
         w.swirl_magnitude_spinbox.valueChanged.connect(lambda l: self.update_parameter("swirl", "magnitude", w.swirl_magnitude_spinbox.value()))
 
         ######################### WAVES EFFECT CONTROLLERS ###################################
-        w.waves_x_spinbox.valueChanged.connect(lambda l: w.waves_x_slider.setValue(w.waves_x_spinbox.value()))
-        w.waves_x_slider.valueChanged.connect(lambda l: w.waves_x_spinbox.setValue(w.waves_x_slider.value()))
-        w.waves_x_spinbox.valueChanged.connect(lambda l: self.update_parameter("waves", "x", w.waves_x_spinbox.value()))
+        w.waves_amplitude_spinbox.valueChanged.connect(lambda l: w.waves_amplitude_slider.setValue(w.waves_amplitude_spinbox.value()))
+        w.waves_amplitude_slider.valueChanged.connect(lambda l: w.waves_amplitude_spinbox.setValue(w.waves_amplitude_slider.value()))
+        w.waves_amplitude_spinbox.valueChanged.connect(lambda l: self.update_parameter("waves", "amplitude", w.waves_amplitude_spinbox.value()))
 
-        w.waves_y_spinbox.valueChanged.connect(lambda l: w.waves_y_slider.setValue(w.waves_y_spinbox.value()))
-        w.waves_y_slider.valueChanged.connect(lambda l: w.waves_y_spinbox.setValue(w.waves_y_slider.value()))
-        w.waves_y_spinbox.valueChanged.connect(lambda l: self.update_parameter("waves", "y", w.waves_y_spinbox.value()))
+        w.waves_freq_spinbox.valueChanged.connect(lambda l: w.waves_freq_slider.setValue(w.waves_freq_spinbox.value()))
+        w.waves_freq_slider.valueChanged.connect(lambda l: w.waves_freq_spinbox.setValue(w.waves_freq_slider.value()))
+        w.waves_freq_spinbox.valueChanged.connect(lambda l: self.update_parameter("waves", "frequency", w.waves_freq_spinbox.value()))
 
-        w.waves_sigma_spinbox.valueChanged.connect(lambda l: w.waves_sigma_slider.setValue(w.waves_sigma_spinbox.value()))
-        w.waves_sigma_slider.valueChanged.connect(lambda l: w.waves_sigma_spinbox.setValue(w.waves_sigma_slider.value()))
-        w.waves_sigma_spinbox.valueChanged.connect(lambda l: self.update_parameter("waves", "sigma", w.waves_sigma_spinbox.value()))
+        w.waves_phase_spinbox.valueChanged.connect(lambda l: w.waves_phase_slider.setValue(w.waves_phase_spinbox.value()))
+        w.waves_phase_slider.valueChanged.connect(lambda l: w.waves_phase_spinbox.setValue(w.waves_phase_slider.value()))
+        w.waves_phase_spinbox.valueChanged.connect(lambda l: self.update_parameter("waves", "phase", w.waves_phase_spinbox.value()))
 
         ######################### CYLINDER ANAMORPHOSIS CONTROLLERS ##########################
 
@@ -145,22 +149,22 @@ class MyApplication():
         w.persmap_x4_spinbox.valueChanged.connect(lambda l: self.update_parameter("pers_mapping", "x4", w.persmap_x4_spinbox.value()))
         w.persmap_y4_spinbox.valueChanged.connect(lambda l: self.update_parameter("pers_mapping", "y4", w.persmap_y4_spinbox.value()))
 
-        ######################### CUSTOM EFFECT CONTROLLERS ##################################
-        w.customeffect_x_spinbox.valueChanged.connect(lambda l: w.customeffect_x_slider.setValue(w.customeffect_x_spinbox.value()))
-        w.customeffect_x_slider.valueChanged.connect(lambda l: w.customeffect_x_spinbox.setValue(w.customeffect_x_slider.value()))
-        w.customeffect_x_spinbox.valueChanged.connect(lambda l: self.update_parameter("custom_effect", "x", w.customeffect_x_spinbox.value()))
+        ######################### SQUARE EYE EFFECT CONTROLLERS ##################################
+        w.square_eye_x_spinbox.valueChanged.connect(lambda l: w.square_eye_x_slider.setValue(w.square_eye_x_spinbox.value()))
+        w.square_eye_x_slider.valueChanged.connect(lambda l: w.square_eye_x_spinbox.setValue(w.square_eye_x_slider.value()))
+        w.square_eye_x_spinbox.valueChanged.connect(lambda l: self.update_parameter("square_eye", "x", w.square_eye_x_spinbox.value()))
 
-        w.customeffect_y_spinbox.valueChanged.connect(lambda l: w.customeffect_y_slider.setValue(w.customeffect_y_spinbox.value()))
-        w.customeffect_y_slider.valueChanged.connect(lambda l: w.customeffect_y_spinbox.setValue(w.customeffect_y_slider.value()))
-        w.customeffect_y_spinbox.valueChanged.connect(lambda l: self.update_parameter("custom_effect", "y", w.customeffect_y_spinbox.value()))
+        w.square_eye_y_spinbox.valueChanged.connect(lambda l: w.square_eye_y_slider.setValue(w.square_eye_y_spinbox.value()))
+        w.square_eye_y_slider.valueChanged.connect(lambda l: w.square_eye_y_spinbox.setValue(w.square_eye_y_slider.value()))
+        w.square_eye_y_spinbox.valueChanged.connect(lambda l: self.update_parameter("square_eye", "y", w.square_eye_y_spinbox.value()))
 
-        w.customeffect_sigma_spinbox.valueChanged.connect(lambda l: w.customeffect_sigma_slider.setValue(w.customeffect_sigma_spinbox.value()))
-        w.customeffect_sigma_slider.valueChanged.connect(lambda l: w.customeffect_sigma_spinbox.setValue(w.customeffect_sigma_slider.value()))
-        w.customeffect_sigma_spinbox.valueChanged.connect(lambda l: self.update_parameter("custom_effect", "sigma", w.customeffect_sigma_spinbox.value()))
+        w.square_eye_sigma_spinbox.valueChanged.connect(lambda l: w.square_eye_sigma_slider.setValue(w.square_eye_sigma_spinbox.value()))
+        w.square_eye_sigma_slider.valueChanged.connect(lambda l: w.square_eye_sigma_spinbox.setValue(w.square_eye_sigma_slider.value()))
+        w.square_eye_sigma_spinbox.valueChanged.connect(lambda l: self.update_parameter("square_eye", "sigma", w.square_eye_sigma_spinbox.value()))
 
-        w.customeffect_magnitude_spinbox.valueChanged.connect(lambda l: w.customeffect_magnitude_slider.setValue(w.customeffect_magnitude_spinbox.value()))
-        w.customeffect_magnitude_slider.valueChanged.connect(lambda l: w.customeffect_magnitude_spinbox.setValue(w.customeffect_magnitude_slider.value()))
-        w.customeffect_magnitude_spinbox.valueChanged.connect(lambda l: self.update_parameter("custom_effect", "magnitude", w.customeffect_magnitude_spinbox.value()))
+        w.square_eye_p_spinbox.valueChanged.connect(lambda l: w.square_eye_p_slider.setValue(w.square_eye_p_spinbox.value()))
+        w.square_eye_p_slider.valueChanged.connect(lambda l: w.square_eye_p_spinbox.setValue(w.square_eye_p_slider.value()))
+        w.square_eye_p_spinbox.valueChanged.connect(lambda l: self.update_parameter("square_eye", "p_value", w.square_eye_p_spinbox.value()))
 
         ######################### APPLY BUTTON CONTROLLERS ##################################
         w.fisheye_apply_button.clicked.connect(lambda l: self.fisheye_effect_apply_button_event())
@@ -169,25 +173,68 @@ class MyApplication():
         w.cylinder_apply_button.clicked.connect(lambda l: self.cylinder_effect_apply_button_event())
         w.radial_apply_button.clicked.connect(lambda l: self.radial_blur_effect_apply_button_event())
         w.persmap_apply_button.clicked.connect(lambda l: self.pers_mapping_apply_button_event())
-        w.customeffect_apply_button.clicked.connect(lambda l: self.custom_effect_apply_button_event())
+        w.square_eye_apply_button.clicked.connect(lambda l: self.square_eye_apply_button_event())
 
     @Slot()
     def update_parameter(self, effect_name, parameter_name, value):
         self.parameters[effect_name][parameter_name] = value
-        self.update_image()
-        print("updated")
+        if self.image is not None:
+            self.update_image(effect_name)
 
-    def update_image(self):
-        pass
+    def update_image(self, effect_name):
+        if effect_name=="fisheye":
+            center_point = (self.parameters[effect_name]["y"],self.parameters[effect_name]["x"])
+            sigma = self.parameters[effect_name]["sigma"]
+            output_image = model.fisheye_effect(self.image, center_point, sigma)
+
+        elif effect_name=="swirl":
+            center_point = (self.parameters[effect_name]["y"],self.parameters[effect_name]["x"])
+            sigma = self.parameters[effect_name]["sigma"]
+            magnitude = self.parameters[effect_name]["magnitude"]
+            output_image = model.swirl_effect(self.image, center_point, sigma, magnitude)
+
+        elif effect_name=="waves":
+            amplitude = [self.parameters[effect_name]["amplitude"], self.parameters[effect_name]["amplitude"]]
+            frequency = [self.parameters[effect_name]["frequency"], self.parameters[effect_name]["frequency"]]
+            phase = [self.parameters[effect_name]["phase"], self.parameters[effect_name]["phase"]]
+            output_image = model.waves_effect(self.image, amplitude, frequency, phase)
+
+        elif effect_name=="radial_blur":
+            output_image = model.radial_blur_effect(self.image, sigma=self.parameters[effect_name]["sigma"])
+        #elif effect_name=="pers_mapping":
+            #print(output_image.min(), output_image.max())
+
+        elif effect_name=="square_eye":
+            center_point = (self.parameters[effect_name]["y"],self.parameters[effect_name]["x"])
+            sigma = self.parameters[effect_name]["sigma"]
+            p_value = self.parameters[effect_name]["p_value"]
+            output_image = model.square_eye_effect(self.image, center_point, sigma, p_value)
+
+
+        self.update_image_view(output_image)
+
+
+    def update_image_view(self, output_image):
+        if np.issubdtype(output_image.dtype, np.floating):
+            output_image = (output_image*255).astype(np.uint8)
+
+        view_image = ImageQt.ImageQt( Image.fromarray(output_image) ) # convert output_image to qimage
+        pixmap = QPixmap.fromImage(view_image)
+        self.scene = QGraphicsScene()
+        self.scene.addPixmap(pixmap)
+        self.window.graphicsView.setScene(self.scene)
+        item = self.window.graphicsView.items()
+        self.window.graphicsView.fitInView(item[0],Qt.KeepAspectRatio)
+
 
     def get_default_parameters(self):
-        parameters = {"fisheye": {"x": 0, "y": 0, "sigma": 0}, 
-                   "swirl": {"x": 0, "y": 0, "sigma": 0, "magnitude":0},
-                   "waves": {"x": 0, "y": 0, "sigma": 0},
-                   "cylinder": {"angle": 180},
-                   "radial_blur": {"sigma": 0},
-                   "pers_mapping": {"x1":0, "y1":0, "x2":0, "y2":0, "x3":0, "y3":0, "x4":0, "y4":0},
-                   "custom_effect": {"x": 0, "y": 0, "sigma": 0, "magnitude":0}}
+        parameters = {"fisheye": {"x": 0, "y": 0, "sigma": 1.0}, 
+                      "swirl": {"x": 0, "y": 0, "sigma": 0.1, "magnitude":0},
+                      "waves": {"amplitude": 0.1, "frequency": 0.1, "phase": 0},
+                      "cylinder": {"angle": 180},
+                      "radial_blur": {"sigma": 0.1},
+                      "pers_mapping": {"x1":0, "y1":0, "x2":0, "y2":0, "x3":0, "y3":0, "x4":0, "y4":0},
+                      "square_eye": {"x": 0, "y": 0, "sigma": 1.0, "p_value":0.1}}
         return parameters
 
     # disable buttons and input widgets
@@ -206,15 +253,15 @@ class MyApplication():
         w = self.window
         self.set_limits([w.fisheye_x_slider, w.fisheye_y_slider, w.fisheye_sigma_slider,
                          w.swirl_x_slider, w.swirl_y_slider, w.swirl_sigma_slider, w.swirl_magnitude_slider,
-                         w.waves_x_slider, w.waves_y_slider, w.waves_sigma_slider,
+                         w.waves_amplitude_slider, w.waves_freq_slider, w.waves_phase_slider,
                          w.radial_sigma_slider, 
-                         w.customeffect_x_slider, w.customeffect_y_slider, w.customeffect_sigma_slider, w.customeffect_magnitude_slider], "slider")
+                         w.square_eye_x_slider, w.square_eye_y_slider, w.square_eye_sigma_slider, w.square_eye_p_slider], "slider")
 
         self.set_limits([w.fisheye_x_spinbox, w.fisheye_y_spinbox, w.fisheye_sigma_spinbox,
                          w.swirl_x_spinbox, w.swirl_y_spinbox, w.swirl_sigma_spinbox,w.swirl_magnitude_spinbox,
-                         w.waves_x_spinbox, w.waves_y_spinbox, w.waves_sigma_spinbox,
+                         w.waves_amplitude_spinbox, w.waves_freq_spinbox, w.waves_phase_spinbox,
                          w.radial_sigma_spinbox,
-                         w.customeffect_x_spinbox, w.customeffect_y_spinbox, w.customeffect_sigma_spinbox, w.customeffect_magnitude_spinbox,
+                         w.square_eye_x_spinbox, w.square_eye_y_spinbox, w.square_eye_sigma_spinbox, w.square_eye_p_spinbox,
                          w.persmap_x1_spinbox, w.persmap_y1_spinbox, w.persmap_x2_spinbox, w.persmap_y2_spinbox,
                          w.persmap_x3_spinbox, w.persmap_y3_spinbox, w.persmap_x4_spinbox, w.persmap_y4_spinbox])
 
@@ -223,13 +270,23 @@ class MyApplication():
 
         for widget in input_widgets:
             #print(widget.accessibleName())
+            widget.setMinimum(0)
+            if kind == "slider":
+                widget.setTickInterval(1)
+
             if widget.accessibleName() == "x":
                 widget.setMaximum(max_x)
             elif widget.accessibleName() == "y":
                 widget.setMaximum(max_y)
-            widget.setMinimum(0)
-            if kind == "slider":
-                widget.setTickInterval(1)
+            elif widget.accessibleName() == "amplitude" or widget.accessibleName()=="frequency" or widget.accessibleName()=="swirl_sigma" or widget.accessibleName()=="radial_sigma" or widget.accessibleName()=="p_value":
+                widget.setMinimum(0.1)
+            elif widget.accessibleName()=="fisheye_sigma" or widget.accessibleName()=="squareeye_sigma":
+                widget.setMinimum(1.0)
+                widget.setMaximum(500.0)
+                if kind == "slider":
+                    widget.setTickInterval(5)
+                else:
+                    widget.setSingleStep(5)
 
     @Slot()
     def load_button_event(self):
@@ -241,6 +298,7 @@ class MyApplication():
         if (new_image.isNull()):
             print("Image not found")
 
+        print(type(new_image))
         self.scene = QGraphicsScene()
         pixmap = QPixmap.fromImage(new_image)
 
@@ -249,14 +307,16 @@ class MyApplication():
         item = self.window.graphicsView.items()
         self.window.graphicsView.fitInView(item[0],Qt.KeepAspectRatio)
 
-        self.image = self.image_read(self.image_file_name[0])
+        self.image = self.image_read(self.image_file_name[0], pilmode="L") / 255.0
+        plt.imshow(self.image, cmap="gray")
+        #plt.show() 
 
         # enable the buttons that were disabled in the beginning
         self.enable_buttons([w.save_button, w.reset_button,
                              w.fisheye_apply_button, w.swirl_apply_button,
                              w.waves_apply_button, w.cylinder_apply_button,
                              w.radial_apply_button, w.persmap_apply_button,
-                             w.customeffect_apply_button])
+                             w.square_eye_apply_button])
 
         self.set_parameter_limits()
 
@@ -278,7 +338,7 @@ class MyApplication():
                               self.window.fisheye_apply_button, self.window.swirl_apply_button,
                               self.window.waves_apply_button, self.window.cylinder_apply_button,
                               self.window.radial_apply_button, self.window.persmap_apply_button,
-                              self.window.customeffect_apply_button])
+                              self.window.square_eye_apply_button])
 
         print("reseted")
 
@@ -299,7 +359,6 @@ class MyApplication():
                 self.tabs_to_apply_buttons_and_params[item_name]["button"].setEnabled(True)
                 for widget in self.tabs_to_apply_buttons_and_params[item_name]["params"]:
                     widget.setEnabled(True)
-
 
     @Slot()
     def fisheye_effect_apply_button_event(self):
@@ -327,7 +386,9 @@ class MyApplication():
 
     @Slot()
     def cylinder_effect_apply_button_event(self):
-        print("TODO: call cylinder_effect")
+        output_image = model.cylinder(self.image)
+        self.update_image_view(output_image)
+
         for widget in self.cylinder_effect_parameters:
             widget.setEnabled(False)
         self.window.cylinder_apply_button.setEnabled(False)
@@ -350,11 +411,11 @@ class MyApplication():
         self.window.undo_button.setEnabled(True)
 
     @Slot()
-    def custom_effect_apply_button_event(self):
-        print("TODO: call custom_effect")
-        for widget in self.custom_effect_parameters:
+    def square_eye_apply_button_event(self):
+        print("TODO: call square_eye_effect")
+        for widget in self.square_eye_effect_parameters:
             widget.setEnabled(False)
-        self.window.customeffect_apply_button.setEnabled(False)
+        self.window.square_eye_apply_button.setEnabled(False)
         self.window.undo_button.setEnabled(True)
 
 

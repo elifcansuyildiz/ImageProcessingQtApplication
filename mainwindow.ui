@@ -73,7 +73,7 @@
        </item>
        <item>
         <property name="text">
-         <string>Custom Effect</string>
+         <string>Square Eye Effect</string>
         </property>
        </item>
       </item>
@@ -453,7 +453,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              <item row="2" column="3">
               <widget class="QDoubleSpinBox" name="fisheye_sigma_spinbox">
                <property name="accessibleName">
-                <string>sigma</string>
+                <string>fisheye_sigma</string>
                </property>
               </widget>
              </item>
@@ -470,7 +470,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              <item row="2" column="2">
               <widget class="QSlider" name="fisheye_sigma_slider">
                <property name="accessibleName">
-                <string>sigma</string>
+                <string>fisheye_sigma</string>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -490,7 +490,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                 <string>x</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -549,7 +549,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                 <string>y</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -687,7 +687,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                 <string>y</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -708,7 +708,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              <item row="2" column="2">
               <widget class="QSlider" name="swirl_sigma_slider">
                <property name="accessibleName">
-                <string>sigma</string>
+                <string>swirl_sigma</string>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -721,7 +721,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                 <string>sigma</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -731,7 +731,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                 <string>x</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -768,7 +768,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              <item row="2" column="3">
               <widget class="QDoubleSpinBox" name="swirl_sigma_spinbox">
                <property name="accessibleName">
-                <string>sigma</string>
+                <string>swirl_sigma</string>
                </property>
               </widget>
              </item>
@@ -778,7 +778,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                 <string>magnitude</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -864,6 +864,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
            </item>
            <item>
             <widget class="QPushButton" name="swirl_apply_button">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply this effect permanently! You can click undo button to roll back to the previous state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="accessibleName">
               <string>tab_button</string>
              </property>
@@ -882,9 +885,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
            <item>
             <layout class="QGridLayout" name="gridLayout_3">
              <item row="1" column="2">
-              <widget class="QSlider" name="waves_y_slider">
+              <widget class="QSlider" name="waves_freq_slider">
                <property name="accessibleName">
-                <string>y</string>
+                <string>frequency</string>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -894,17 +897,17 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              <item row="2" column="1">
               <widget class="QLabel" name="label_13">
                <property name="text">
-                <string>sigma</string>
+                <string>phase</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
               <widget class="QLabel" name="label_14">
                <property name="text">
-                <string>y</string>
+                <string>frequence</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -926,6 +929,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              </item>
              <item row="1" column="5">
               <widget class="QPushButton" name="waves_apply_button">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply this effect permanently! You can click undo button to roll back to the previous state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="accessibleName">
                 <string>tab_button</string>
                </property>
@@ -935,22 +941,15 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QDoubleSpinBox" name="waves_sigma_spinbox"/>
+              <widget class="QDoubleSpinBox" name="waves_phase_spinbox"/>
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label_12">
                <property name="text">
-                <string>x</string>
+                <string>amplitude</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="3">
-              <widget class="QSpinBox" name="waves_x_spinbox">
-               <property name="accessibleName">
-                <string>x</string>
                </property>
               </widget>
              </item>
@@ -980,22 +979,15 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                </property>
               </spacer>
              </item>
-             <item row="1" column="3">
-              <widget class="QSpinBox" name="waves_y_spinbox">
-               <property name="accessibleName">
-                <string>y</string>
-               </property>
-              </widget>
-             </item>
              <item row="2" column="2">
-              <widget class="QSlider" name="waves_sigma_slider">
+              <widget class="QSlider" name="waves_phase_slider">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QSlider" name="waves_x_slider">
+              <widget class="QSlider" name="waves_amplitude_slider">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>100</horstretch>
@@ -1003,7 +995,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                 </sizepolicy>
                </property>
                <property name="accessibleName">
-                <string>x</string>
+                <string>amplitude</string>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -1048,6 +1040,20 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                 </size>
                </property>
               </spacer>
+             </item>
+             <item row="0" column="3">
+              <widget class="QDoubleSpinBox" name="waves_amplitude_spinbox">
+               <property name="accessibleName">
+                <string>amplitude</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QDoubleSpinBox" name="waves_freq_spinbox">
+               <property name="accessibleName">
+                <string>frequency</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
@@ -1119,6 +1125,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
            </item>
            <item>
             <widget class="QPushButton" name="cylinder_apply_button">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply this effect permanently! You can click undo button to roll back to the previous state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="accessibleName">
               <string>tab_button</string>
              </property>
@@ -1156,7 +1165,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                  <string>sigma</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
@@ -1169,7 +1178,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                  </sizepolicy>
                 </property>
                 <property name="accessibleName">
-                 <string>sigma</string>
+                 <string>radial_sigma</string>
                 </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -1179,7 +1188,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               <item>
                <widget class="QDoubleSpinBox" name="radial_sigma_spinbox">
                 <property name="accessibleName">
-                 <string>sigma</string>
+                 <string>radial_sigma</string>
                 </property>
                </widget>
               </item>
@@ -1201,6 +1210,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
            </item>
            <item>
             <widget class="QPushButton" name="radial_apply_button">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply this effect permanently! You can click undo button to roll back to the previous state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="accessibleName">
               <string>tab_button</string>
              </property>
@@ -1652,6 +1664,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
            </item>
            <item>
             <widget class="QPushButton" name="persmap_apply_button">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply this effect permanently! You can click undo button to roll back to the previous state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="accessibleName">
               <string>tab_button</string>
              </property>
@@ -1683,9 +1698,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </spacer>
              </item>
              <item row="3" column="2">
-              <widget class="QSlider" name="customeffect_magnitude_slider">
+              <widget class="QSlider" name="square_eye_p_slider">
                <property name="accessibleName">
-                <string>magnitude</string>
+                <string>p_value</string>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -1693,21 +1708,21 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QSpinBox" name="customeffect_y_spinbox">
+              <widget class="QSpinBox" name="square_eye_y_spinbox">
                <property name="accessibleName">
                 <string>y</string>
                </property>
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QDoubleSpinBox" name="customeffect_sigma_spinbox">
+              <widget class="QDoubleSpinBox" name="square_eye_sigma_spinbox">
                <property name="accessibleName">
-                <string>sigma</string>
+                <string>squareeye_sigma</string>
                </property>
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QSlider" name="customeffect_y_slider">
+              <widget class="QSlider" name="square_eye_y_slider">
                <property name="accessibleName">
                 <string>y</string>
                </property>
@@ -1732,27 +1747,27 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              <item row="3" column="1">
               <widget class="QLabel" name="label_25">
                <property name="text">
-                <string>magnitude</string>
+                <string>p value</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
               <widget class="QLabel" name="label_26">
                <property name="text">
-                <string>y</string>
+                <string>Center y</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QSlider" name="customeffect_sigma_slider">
+              <widget class="QSlider" name="square_eye_sigma_slider">
                <property name="accessibleName">
-                <string>sigma</string>
+                <string>squareeye_sigma</string>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -1773,14 +1788,14 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </spacer>
              </item>
              <item row="3" column="3">
-              <widget class="QDoubleSpinBox" name="customeffect_magnitude_spinbox">
+              <widget class="QDoubleSpinBox" name="square_eye_p_spinbox">
                <property name="accessibleName">
-                <string>magnitude</string>
+                <string>p_value</string>
                </property>
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QSpinBox" name="customeffect_x_spinbox">
+              <widget class="QSpinBox" name="square_eye_x_spinbox">
                <property name="accessibleName">
                 <string>x</string>
                </property>
@@ -1789,10 +1804,10 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              <item row="0" column="1">
               <widget class="QLabel" name="label_24">
                <property name="text">
-                <string>x</string>
+                <string>Center x</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -1815,12 +1830,12 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                 <string>sigma</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QSlider" name="customeffect_x_slider">
+              <widget class="QSlider" name="square_eye_x_slider">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>100</horstretch>
@@ -1890,7 +1905,10 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
             </layout>
            </item>
            <item>
-            <widget class="QPushButton" name="customeffect_apply_button">
+            <widget class="QPushButton" name="square_eye_apply_button">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply this effect permanently! You can click undo button to roll back to the previous state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="accessibleName">
               <string>tab_button</string>
              </property>

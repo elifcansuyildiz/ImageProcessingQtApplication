@@ -105,6 +105,8 @@ class MyApplication():
 
 
         self.image = None
+        self.preview_image = None
+        self.images_stack = []
 
         self.current_tab_idx = 0
         self.current_tab_name = "About"
@@ -310,6 +312,8 @@ class MyApplication():
     # For threading
     @Slot(object)
     def update_image_view(self, output_image):
+        self.preview_image = output_image.copy()
+
         if np.issubdtype(output_image.dtype, np.floating):
             output_image = (output_image*255).astype(np.uint8)
 
@@ -404,9 +408,12 @@ class MyApplication():
         item = self.window.graphicsView.items()
         self.window.graphicsView.fitInView(item[0],Qt.KeepAspectRatio)
 
-        self.image = self.image_read(self.image_file_name[0], pilmode="RGB") / 255.0
-        plt.imshow(self.image, cmap="gray")
-        #plt.show() 
+        #self.image = self.image_read(self.image_file_name[0], pilmode="RGB") / 255.0
+        self.image = Image.open(self.image_file_name[0])
+        self.image = np.array(self.image) / 255.0
+        self.images_stack.append(("original image",self.image))
+        #plt.imshow(self.image, cmap="gray")
+        #plt.show()
 
         # enable the buttons that were disabled in the beginning
         self.enable_buttons([w.save_button, w.reset_button,
@@ -425,7 +432,11 @@ class MyApplication():
         if any(substring in file_name_to_save for substring in extension_list) == False:
             file_name_to_save = file_name_to_save + ".jpg"
 
-        self.image_write(self.image, file_name_to_save)
+        image_to_be_saved = self.image.copy()
+        if np.issubdtype(image_to_be_saved.dtype, np.floating):
+            image_to_be_saved = (self.image*255).astype(np.uint8)
+
+        self.image_write(image_to_be_saved, file_name_to_save)
 
     @Slot()
     def reset_button_event(self):
@@ -459,7 +470,10 @@ class MyApplication():
 
     @Slot()
     def fisheye_effect_apply_button_event(self):
-        print("TODO: call fisheye_effect")
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("fish eye effect", self.image))  # added to the stack
+        print(self.images_stack)
+
         for widget in self.fisheye_effect_parameters:
             widget.setEnabled(False)
         self.window.fisheye_apply_button.setEnabled(False)
@@ -467,7 +481,10 @@ class MyApplication():
 
     @Slot()
     def swirl_effect_apply_button_event(self):
-        print("TODO: call swirl_effect")
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("swirl effect", self.image))  # added to the stack
+        print(self.images_stack)
+
         for widget in self.swirl_effect_parameters:
             widget.setEnabled(False)
         self.window.swirl_apply_button.setEnabled(False)
@@ -475,7 +492,10 @@ class MyApplication():
 
     @Slot()
     def waves_effect_apply_button_event(self):
-        print("TODO: call waves_effect")
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("waves effect", self.image))  # added to the stack
+        print(self.images_stack)
+
         for widget in self.waves_effect_parameters:
             widget.setEnabled(False)
         self.window.waves_apply_button.setEnabled(False)
@@ -484,7 +504,10 @@ class MyApplication():
     @Slot()
     def cylinder_effect_apply_button_event(self):
         output_image = model.cylinder(self.image)
-        self.update_image_view(output_image)
+        self.update_image_view(output_image)    #self.preview_image is updated in this function
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("fish eye effect", self.image))  # added to the stack
+        print(self.images_stack)
 
         for widget in self.cylinder_effect_parameters:
             widget.setEnabled(False)
@@ -493,7 +516,10 @@ class MyApplication():
 
     @Slot()
     def radial_blur_effect_apply_button_event(self):
-        print("TODO: call radial_blur_effect")
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("radial blur effect", self.image))  # added to the stack
+        print(self.images_stack)
+
         for widget in self.radial_blur_effect_parameters:
             widget.setEnabled(False)
         self.window.radial_apply_button.setEnabled(False)
@@ -501,7 +527,10 @@ class MyApplication():
 
     @Slot()
     def pers_mapping_apply_button_event(self):
-        print("TODO: call pers_mapping")
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("pers mapping effect", self.image))  # added to the stack
+        print(self.images_stack)
+
         for widget in self.pers_mapping_parameters:
             widget.setEnabled(False)
         self.window.persmap_apply_button.setEnabled(False)
@@ -509,7 +538,10 @@ class MyApplication():
 
     @Slot()
     def square_eye_apply_button_event(self):
-        print("TODO: call square_eye_effect")
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("square eye effect", self.image))  # added to the stack
+        print(self.images_stack)
+
         for widget in self.square_eye_effect_parameters:
             widget.setEnabled(False)
         self.window.square_eye_apply_button.setEnabled(False)

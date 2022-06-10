@@ -78,7 +78,7 @@ def waves_effect(arrF, amplitude, frequency, phase):
 
 ####################################################################################
 
-def cylinder(arrF):
+def cylinder(arrF, angle_shift):
     M, N = arrF.shape
     u, v = np.meshgrid(np.arange(N), np.arange(M))
     matX = np.stack((v, u)).astype(float)
@@ -94,6 +94,8 @@ def cylinder(arrF):
     angle = np.arctan2(diff[0], diff[1])
     angle = angle-angle.min() # min angle is 0 with this line
     angle = angle/angle.max() # angle is normalized to 0-1
+    #angle = (angle + 0.3) % 1.0
+    angle = (angle + angle_shift/360.0) % 1.0
     x = angle * (arrF.shape[1]-1)
 
     matX = np.stack([y, x])

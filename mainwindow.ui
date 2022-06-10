@@ -120,7 +120,11 @@
         <widget class="QWidget" name="widget_3" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="QGraphicsView" name="graphicsView"/>
+           <widget class="QGraphicsView" name="graphicsView">
+            <property name="accessibleName">
+             <string>graphicsView</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QWidget" name="widget" native="true">
@@ -192,7 +196,7 @@
           <string>tab</string>
          </property>
          <property name="currentIndex">
-          <number>7</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab_11">
           <attribute name="title">
@@ -379,6 +383,9 @@ The &lt;a href=&quot;https://github.com/elifcansuyildiz/ImageProcessingQtApplica
                    <property name="textFormat">
                     <enum>Qt::AutoText</enum>
                    </property>
+                   <property name="openExternalLinks">
+                    <bool>true</bool>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -393,6 +400,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                    <property name="textFormat">
                     <enum>Qt::MarkdownText</enum>
                    </property>
+                   <property name="openExternalLinks">
+                    <bool>true</bool>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -406,6 +416,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                    </property>
                    <property name="textFormat">
                     <enum>Qt::AutoText</enum>
+                   </property>
+                   <property name="openExternalLinks">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -907,7 +920,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              <item row="1" column="1">
               <widget class="QLabel" name="label_14">
                <property name="text">
-                <string>frequence</string>
+                <string>1/frequence</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -1072,6 +1085,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Expanding</enum>
+                </property>
                 <property name="sizeHint" stdset="0">
                  <size>
                   <width>40</width>
@@ -1083,34 +1099,40 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               <item>
                <widget class="QLabel" name="label">
                 <property name="text">
-                 <string>Angle</string>
+                 <string>angle</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="cylinder_combobox">
+               <widget class="QSlider" name="cylinder_angle_slider">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>100</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <item>
-                 <property name="text">
-                  <string>180</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>360</string>
-                 </property>
-                </item>
+                <property name="accessibleName">
+                 <string>cylinder_angle</string>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="cylinder_angle_spinbox">
+                <property name="accessibleName">
+                 <string>cylinder_angle</string>
+                </property>
                </widget>
               </item>
               <item>
                <spacer name="horizontalSpacer_42">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Expanding</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -1757,7 +1779,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              <item row="1" column="1">
               <widget class="QLabel" name="label_26">
                <property name="text">
-                <string>Center y</string>
+                <string>center y</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -1804,7 +1826,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
              <item row="0" column="1">
               <widget class="QLabel" name="label_24">
                <property name="text">
-                <string>Center x</string>
+                <string>center x</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>

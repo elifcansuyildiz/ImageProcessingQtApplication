@@ -1,9 +1,9 @@
 import sys
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QApplication, QTabWidget, QGraphicsScene, QFileDialog, QMessageBox
+from PySide6.QtWidgets import QApplication, QTabWidget, QGraphicsScene, QFileDialog, QMessageBox, QGraphicsView
 
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import Slot, Qt, QDir
+from PySide6.QtCore import Slot, Qt, QDir, QObject, QEvent
 from PySide6.QtGui import QPixmap, QIcon, QImageReader, QGuiApplication, QPainter, QImage
 
 import imageio
@@ -91,10 +91,30 @@ class TemporaryWorker(QRunnable):
         self.finished_event.set()
         #print("TemporaryWorker stopped")
 
+
+class MouseDetector(QObject):
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.MouseButtonPress:
+            if isinstance(obj, QGraphicsView):
+                print('mouse pressed. ObjectName: ', obj.objectName())
+                self.getPos(event)
+                scene_position = obj.mapToScene(int(event.position().x()), int(event.position().y()))
+                print(scene_position)
+        return super(MouseDetector, self).eventFilter(obj, event)
+
+    def getPos(self, event):
+        x = event.position().x()
+        y = event.position().y()
+        print(x)
+        print(y)
+
+
 class MyApplication():
     def __init__(self):
         loader = QUiLoader()
         self.window = loader.load("mainwindow.ui", None)
+
 
         #For threading
         QApplication.instance().aboutToQuit.connect(self.exit_handler)
@@ -127,7 +147,7 @@ class MyApplication():
         self.waves_effect_parameters = [self.window.waves_amplitude_slider, self.window.waves_freq_slider, self.window.waves_phase_slider,
                                           self.window.waves_amplitude_spinbox, self.window.waves_freq_spinbox, self.window.waves_phase_spinbox]
 
-        self.cylinder_effect_parameters = [self.window.cylinder_combobox]
+        self.cylinder_effect_parameters = [self.window.cylinder_angle_slider, self.window.cylinder_angle_spinbox]
 
         self.radial_blur_effect_parameters = [self.window.radial_sigma_slider, self.window.radial_sigma_spinbox]
 
@@ -180,6 +200,11 @@ class MyApplication():
         w.undo_button.clicked.connect(lambda l: self.undo_button_event())
         w.treeWidget.itemClicked.connect(self.dashboard_clicked_event)
 
+        #w.graphicsView.mousePressEvent = self.getPos
+        self.mouseFilter = MouseDetector()
+        QApplication.instance().installEventFilter(self.mouseFilter)
+
+
         ######################### FISHEYE EFFECT CONTROLLERS #################################
         w.fisheye_x_spinbox.valueChanged.connect(lambda l: w.fisheye_x_slider.setValue(w.fisheye_x_spinbox.value()))
         w.fisheye_x_slider.valueChanged.connect(lambda l: w.fisheye_x_spinbox.setValue(w.fisheye_x_slider.value()))
@@ -224,6 +249,9 @@ class MyApplication():
         w.waves_phase_spinbox.valueChanged.connect(lambda l: self.update_parameter("waves", "phase", w.waves_phase_spinbox.value()))
 
         ######################### CYLINDER ANAMORPHOSIS CONTROLLERS ##########################
+        w.cylinder_angle_spinbox.valueChanged.connect(lambda l: w.cylinder_angle_slider.setValue(w.cylinder_angle_spinbox.value()))
+        w.cylinder_angle_slider.valueChanged.connect(lambda l: w.cylinder_angle_spinbox.setValue(w.cylinder_angle_slider.value()))
+        w.cylinder_angle_spinbox.valueChanged.connect(lambda l: self.update_parameter("cylinder", "angle", w.cylinder_angle_spinbox.value()))
 
         ######################### RADIAL BLUR EFFECT CONTROLLERS #############################
         w.radial_sigma_spinbox.valueChanged.connect(lambda l: w.radial_sigma_slider.setValue(w.radial_sigma_spinbox.value()))
@@ -294,6 +322,9 @@ class MyApplication():
             #output_image = model.waves_effect(self.image, amplitude, frequency, phase)
             self.worker.process(model.waves_effect, (self.image, amplitude, frequency, phase))
 
+        elif effect_name=="cylinder":
+            self.worker.process(model.cylinder, (self.image, self.parameters[effect_name]["angle"]))
+
         elif effect_name=="radial_blur":
             self.worker.process(model.radial_blur_effect, (self.image, self.parameters[effect_name]["sigma"]))
             #output_image = model.radial_blur_effect(self.image, sigma=self.parameters[effect_name]["sigma"])
@@ -332,7 +363,7 @@ class MyApplication():
         parameters = {"fisheye": {"x": 0, "y": 0, "sigma": 1.0}, 
                       "swirl": {"x": 0, "y": 0, "sigma": 0.1, "magnitude":0},
                       "waves": {"amplitude": 0.1, "frequency": 0.1, "phase": 0},
-                      "cylinder": {"angle": 180},
+                      "cylinder": {"angle": 0.0},
                       "radial_blur": {"sigma": 0.1},
                       "pers_mapping": {"x1":0, "y1":0, "x2":0, "y2":0, "x3":0, "y3":0, "x4":0, "y4":0},
                       "square_eye": {"x": 0, "y": 0, "sigma": 1.0, "p_value":0.1}}
@@ -355,12 +386,14 @@ class MyApplication():
         self.set_limits([w.fisheye_x_slider, w.fisheye_y_slider, w.fisheye_sigma_slider,
                          w.swirl_x_slider, w.swirl_y_slider, w.swirl_sigma_slider, w.swirl_magnitude_slider,
                          w.waves_amplitude_slider, w.waves_freq_slider, w.waves_phase_slider,
+                         w.cylinder_angle_slider,
                          w.radial_sigma_slider, 
                          w.square_eye_x_slider, w.square_eye_y_slider, w.square_eye_sigma_slider, w.square_eye_p_slider], "slider")
 
         self.set_limits([w.fisheye_x_spinbox, w.fisheye_y_spinbox, w.fisheye_sigma_spinbox,
                          w.swirl_x_spinbox, w.swirl_y_spinbox, w.swirl_sigma_spinbox,w.swirl_magnitude_spinbox,
                          w.waves_amplitude_spinbox, w.waves_freq_spinbox, w.waves_phase_spinbox,
+                         w.cylinder_angle_spinbox,
                          w.radial_sigma_spinbox,
                          w.square_eye_x_spinbox, w.square_eye_y_spinbox, w.square_eye_sigma_spinbox, w.square_eye_p_spinbox,
                          w.persmap_x1_spinbox, w.persmap_y1_spinbox, w.persmap_x2_spinbox, w.persmap_y2_spinbox,
@@ -381,6 +414,8 @@ class MyApplication():
                 widget.setMaximum(max_y)
             elif widget.accessibleName() == "amplitude" or widget.accessibleName()=="frequency" or widget.accessibleName()=="swirl_sigma" or widget.accessibleName()=="radial_sigma" or widget.accessibleName()=="p_value":
                 widget.setMinimum(0.1)
+            elif widget.accessibleName() == "cylinder_angle":
+                widget.setMaximum(360.0)
             elif widget.accessibleName()=="fisheye_sigma" or widget.accessibleName()=="squareeye_sigma":
                 widget.setMinimum(1.0)
                 widget.setMaximum(500.0)
@@ -393,13 +428,14 @@ class MyApplication():
     def load_button_event(self):
         w = self.window
         self.image_file_name = QFileDialog.getOpenFileName(self.window, "Open Image", ".", "Image Files (*.png *.jpg *.bmp)")
+        print("-------->", self.image_file_name)
         reader = QImageReader(self.image_file_name[0])
         reader.setAutoTransform(True)
         new_image = reader.read()
         if (new_image.isNull()):
             print("Image not found")
 
-        print(type(new_image))
+        print("-------->", type(new_image))
         self.scene = QGraphicsScene()
         pixmap = QPixmap.fromImage(new_image)
 
@@ -428,9 +464,9 @@ class MyApplication():
     def save_button_event(self):
         file_name_to_save = QFileDialog.getSaveFileName(self.window, "Open Image", ".", "Image Files (*.png *.jpg *.bmp)")[0]
 
-        extension_list = ["png", "jpg"]
+        extension_list = ["png", "jpg", "jpeg"]
         if any(substring in file_name_to_save for substring in extension_list) == False:
-            file_name_to_save = file_name_to_save + ".jpg"
+            file_name_to_save = file_name_to_save + ".png"
 
         image_to_be_saved = self.image.copy()
         if np.issubdtype(image_to_be_saved.dtype, np.floating):
@@ -503,10 +539,8 @@ class MyApplication():
 
     @Slot()
     def cylinder_effect_apply_button_event(self):
-        output_image = model.cylinder(self.image)
-        self.update_image_view(output_image)    #self.preview_image is updated in this function
         self.image = self.preview_image.copy()
-        self.images_stack.append(("fish eye effect", self.image))  # added to the stack
+        self.images_stack.append(("cylinder effect", self.image))  # added to the stack
         print(self.images_stack)
 
         for widget in self.cylinder_effect_parameters:

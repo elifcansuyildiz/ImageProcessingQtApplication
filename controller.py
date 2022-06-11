@@ -100,6 +100,14 @@ class MouseDetector(QObject):
                 print('mouse pressed. ObjectName: ', obj.objectName())
                 self.getPos(event)
                 scene_position = obj.mapToScene(int(event.position().x()), int(event.position().y()))
+
+                if self.app.select_x_spinbox is not None:
+                    self.app.select_x_spinbox.setValue(scene_position.x())
+                    self.app.select_x_spinbox = None
+                if self.app.select_y_spinbox is not None:
+                    self.app.select_y_spinbox.setValue(scene_position.y())
+                    self.app.select_y_spinbox = None
+
                 print(scene_position)
         return super(MouseDetector, self).eventFilter(obj, event)
 
@@ -126,6 +134,7 @@ class MyApplication():
 
         self.image = None
         self.preview_image = None
+        self.persmap_image = None
         self.images_stack = []
 
         self.current_tab_idx = 0
@@ -194,16 +203,22 @@ class MyApplication():
         w.icon_label.setScaledContents(True)
         w.icon_label.setPixmap(pixmap)
 
-        w.load_button.clicked.connect(lambda l: self.load_button_event())
+        w.load_button.clicked.connect(lambda l: self.load_button_event(w.graphicsView))
+        w.persmap_load_button.clicked.connect(lambda l: self.load_button_event(w.persmap_graphicsView))
         w.save_button.clicked.connect(lambda l: self.save_button_event())
-        w.reset_button.clicked.connect(lambda l: self.reset_button_event())
+        w.reset_button.clicked.connect(lambda l: self.reset_button_event("main_image"))
+        w.persmap_reset_button.clicked.connect(lambda l: self.reset_button_event("persmap_image"))
         w.undo_button.clicked.connect(lambda l: self.undo_button_event())
         w.treeWidget.itemClicked.connect(self.dashboard_clicked_event)
 
+
         #w.graphicsView.mousePressEvent = self.getPos
         self.mouseFilter = MouseDetector()
+        self.mouseFilter.app = self
         QApplication.instance().installEventFilter(self.mouseFilter)
 
+        self.select_x_spinbox = None 
+        self.select_y_spinbox = None 
 
         ######################### FISHEYE EFFECT CONTROLLERS #################################
         w.fisheye_x_spinbox.valueChanged.connect(lambda l: w.fisheye_x_slider.setValue(w.fisheye_x_spinbox.value()))
@@ -268,6 +283,12 @@ class MyApplication():
         w.persmap_x4_spinbox.valueChanged.connect(lambda l: self.update_parameter("pers_mapping", "x4", w.persmap_x4_spinbox.value()))
         w.persmap_y4_spinbox.valueChanged.connect(lambda l: self.update_parameter("pers_mapping", "y4", w.persmap_y4_spinbox.value()))
 
+        w.persmap_select1_button.clicked.connect(lambda l: self.pers_mapping_select_button_event(w.persmap_x1_spinbox, w.persmap_y1_spinbox))
+        w.persmap_select2_button.clicked.connect(lambda l: self.pers_mapping_select_button_event(w.persmap_x2_spinbox, w.persmap_y2_spinbox))
+        w.persmap_select3_button.clicked.connect(lambda l: self.pers_mapping_select_button_event(w.persmap_x3_spinbox, w.persmap_y3_spinbox))
+        w.persmap_select4_button.clicked.connect(lambda l: self.pers_mapping_select_button_event(w.persmap_x4_spinbox, w.persmap_y4_spinbox))
+
+
         ######################### SQUARE EYE EFFECT CONTROLLERS ##################################
         w.square_eye_x_spinbox.valueChanged.connect(lambda l: w.square_eye_x_slider.setValue(w.square_eye_x_spinbox.value()))
         w.square_eye_x_slider.valueChanged.connect(lambda l: w.square_eye_x_spinbox.setValue(w.square_eye_x_slider.value()))
@@ -329,8 +350,13 @@ class MyApplication():
             self.worker.process(model.radial_blur_effect, (self.image, self.parameters[effect_name]["sigma"]))
             #output_image = model.radial_blur_effect(self.image, sigma=self.parameters[effect_name]["sigma"])
 
-        #elif effect_name=="pers_mapping":
-            #print(output_image.min(), output_image.max())
+        elif effect_name=="pers_mapping":
+            if self.persmap_image is not None:
+                u_ul = (self.parameters[effect_name]["x1"], self.parameters[effect_name]["y1"])
+                u_ur = (self.parameters[effect_name]["x2"], self.parameters[effect_name]["y2"])
+                u_ll = (self.parameters[effect_name]["x3"], self.parameters[effect_name]["y3"])
+                u_lr = (self.parameters[effect_name]["x4"], self.parameters[effect_name]["y4"])
+                self.worker.process(model.perspective_mapping, (self.persmap_image, self.image, u_ul, u_ur, u_ll, u_lr))
 
         elif effect_name=="square_eye":
             center_point = (self.parameters[effect_name]["y"],self.parameters[effect_name]["x"])
@@ -344,6 +370,7 @@ class MyApplication():
     @Slot(object)
     def update_image_view(self, output_image):
         self.preview_image = output_image.copy()
+        print(output_image.min(), output_image.max())
 
         if np.issubdtype(output_image.dtype, np.floating):
             output_image = (output_image*255).astype(np.uint8)
@@ -425,40 +452,50 @@ class MyApplication():
                     widget.setSingleStep(5)
 
     @Slot()
-    def load_button_event(self):
+    def load_button_event(self, graphicsView):
         w = self.window
         self.image_file_name = QFileDialog.getOpenFileName(self.window, "Open Image", ".", "Image Files (*.png *.jpg *.bmp)")
-        print("-------->", self.image_file_name)
-        reader = QImageReader(self.image_file_name[0])
-        reader.setAutoTransform(True)
-        new_image = reader.read()
-        if (new_image.isNull()):
-            print("Image not found")
+        
+        if self.image_file_name[0] != "":
 
-        print("-------->", type(new_image))
-        self.scene = QGraphicsScene()
-        pixmap = QPixmap.fromImage(new_image)
+            reader = QImageReader(self.image_file_name[0])
+            reader.setAutoTransform(True)
+            new_image = reader.read()
+            if (new_image.isNull()):
+                print("Image not found")
 
-        self.scene.addPixmap(pixmap)
-        self.window.graphicsView.setScene(self.scene)
-        item = self.window.graphicsView.items()
-        self.window.graphicsView.fitInView(item[0],Qt.KeepAspectRatio)
+            self.scene = QGraphicsScene()
+            pixmap = QPixmap.fromImage(new_image)
 
-        #self.image = self.image_read(self.image_file_name[0], pilmode="RGB") / 255.0
-        self.image = Image.open(self.image_file_name[0])
-        self.image = np.array(self.image) / 255.0
-        self.images_stack.append(("original image",self.image))
-        #plt.imshow(self.image, cmap="gray")
-        #plt.show()
+            self.scene.addPixmap(pixmap)
+            graphicsView.setScene(self.scene)
+            item = graphicsView.items()
+            graphicsView.fitInView(item[0],Qt.KeepAspectRatio)
 
-        # enable the buttons that were disabled in the beginning
-        self.enable_buttons([w.save_button, w.reset_button,
-                             w.fisheye_apply_button, w.swirl_apply_button,
-                             w.waves_apply_button, w.cylinder_apply_button,
-                             w.radial_apply_button, w.persmap_apply_button,
-                             w.square_eye_apply_button])
+            if graphicsView.accessibleName()=="graphicsView":
+                #self.image = self.image_read(self.image_file_name[0], pilmode="RGB") / 255.0
+                self.image = Image.open(self.image_file_name[0])
+                self.image = np.array(self.image) / 255.0
+                self.images_stack.append(("original image",self.image))
+                #plt.imshow(self.image, cmap="gray")
+                #plt.show()
+                print(self.image.shape)
 
-        self.set_parameter_limits()
+                # enable the buttons that were disabled in the beginning
+                self.enable_buttons([w.save_button, w.reset_button,
+                                     w.fisheye_apply_button, w.swirl_apply_button,
+                                     w.waves_apply_button, w.cylinder_apply_button,
+                                     w.radial_apply_button,
+                                     w.square_eye_apply_button])
+
+                self.set_parameter_limits()
+
+            elif graphicsView.accessibleName()=="persmap_graphicsView":
+                print("girdi")
+                self.persmap_image = Image.open(self.image_file_name[0])
+                self.persmap_image = np.array(self.persmap_image) / 255.0
+                self.enable_buttons([w.persmap_apply_button])
+
 
     @Slot()
     def save_button_event(self):
@@ -475,14 +512,19 @@ class MyApplication():
         self.image_write(image_to_be_saved, file_name_to_save)
 
     @Slot()
-    def reset_button_event(self):
-        self.window.graphicsView.setScene(None)
-        self.image = None
-        self.disable_buttons([self.window.save_button, self.window.reset_button, self.window.undo_button,
-                              self.window.fisheye_apply_button, self.window.swirl_apply_button,
-                              self.window.waves_apply_button, self.window.cylinder_apply_button,
-                              self.window.radial_apply_button, self.window.persmap_apply_button,
-                              self.window.square_eye_apply_button])
+    def reset_button_event(self, image="main_image"):
+        if image=="main_image":
+            self.window.graphicsView.setScene(None)
+            self.image = None
+            self.disable_buttons([self.window.save_button, self.window.reset_button, self.window.undo_button,
+                                  self.window.fisheye_apply_button, self.window.swirl_apply_button,
+                                  self.window.waves_apply_button, self.window.cylinder_apply_button,
+                                  self.window.radial_apply_button, self.window.persmap_apply_button,
+                                  self.window.square_eye_apply_button])
+        elif image=="persmap_image":
+            self.window.persmap_graphicsView.setScene(None)
+            self.persmap_image = None
+            self.window.persmap_apply_button.setEnabled(False)
 
         print("reseted")
 
@@ -503,6 +545,8 @@ class MyApplication():
                 self.tabs_to_apply_buttons_and_params[item_name]["button"].setEnabled(True)
                 for widget in self.tabs_to_apply_buttons_and_params[item_name]["params"]:
                     widget.setEnabled(True)
+            if self.persmap_image is None:
+                self.tabs_to_apply_buttons_and_params["Perspective Mapping"]["button"].setEnabled(False)
 
     @Slot()
     def fisheye_effect_apply_button_event(self):
@@ -558,6 +602,11 @@ class MyApplication():
             widget.setEnabled(False)
         self.window.radial_apply_button.setEnabled(False)
         self.window.undo_button.setEnabled(True)
+
+    @Slot()
+    def pers_mapping_select_button_event(self, x, y):
+        self.select_x_spinbox = x
+        self.select_y_spinbox = y
 
     @Slot()
     def pers_mapping_apply_button_event(self):

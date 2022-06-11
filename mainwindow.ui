@@ -1611,6 +1611,13 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </spacer>
                     </item>
                     <item>
+                     <widget class="QCheckBox" name="checkBox">
+                      <property name="text">
+                       <string>IsTransparent</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QPushButton" name="persmap_load_button">
                       <property name="toolTip">
                        <string/>
@@ -1650,7 +1657,11 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGraphicsView" name="persmap_graphicsView"/>
+                  <widget class="QGraphicsView" name="persmap_graphicsView">
+                   <property name="accessibleName">
+                    <string>persmap_graphicsView</string>
+                   </property>
+                  </widget>
                  </item>
                  <item>
                   <spacer name="horizontalSpacer">

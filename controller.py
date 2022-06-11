@@ -31,6 +31,7 @@ class Worker(QRunnable):
         self.mutex = QMutex()
         self.f = None
         self.params = None
+        self.split_dimensions = True
         self.threadpool = QThreadPool()
 
     @Slot()
@@ -49,7 +50,7 @@ class Worker(QRunnable):
                 params = self.params
                 self.mutex.unlock()
 
-                if len(params[0].shape)==2:
+                if len(params[0].shape)==2 or not self.split_dimensions:
                     output = f(*params)
                 elif len(params[0].shape)==3:
                     finished_events = []
@@ -68,10 +69,11 @@ class Worker(QRunnable):
         print("Worker stopped")
 
     @Slot(object, object)
-    def process(self, f, parameters):
+    def process(self, f, parameters, split_dimensions=True):
         self.mutex.lock()
         self.f = f
         self.params = parameters
+        self.split_dimensions = split_dimensions
         self.new_data_arrived.set()
         self.mutex.unlock()
 
@@ -353,10 +355,11 @@ class MyApplication():
         elif effect_name=="pers_mapping":
             if self.persmap_image is not None:
                 u_ul = (self.parameters[effect_name]["x1"], self.parameters[effect_name]["y1"])
+                print(u_ul)
                 u_ur = (self.parameters[effect_name]["x2"], self.parameters[effect_name]["y2"])
                 u_ll = (self.parameters[effect_name]["x3"], self.parameters[effect_name]["y3"])
                 u_lr = (self.parameters[effect_name]["x4"], self.parameters[effect_name]["y4"])
-                self.worker.process(model.perspective_mapping, (self.persmap_image, self.image, u_ul, u_ur, u_ll, u_lr))
+                self.worker.process(model.perspective_mapping, (self.persmap_image, self.image, u_ul, u_ur, u_ll, u_lr), split_dimensions=False)
 
         elif effect_name=="square_eye":
             center_point = (self.parameters[effect_name]["y"],self.parameters[effect_name]["x"])

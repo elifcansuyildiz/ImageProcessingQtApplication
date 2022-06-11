@@ -196,7 +196,7 @@
           <string>tab</string>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>6</number>
          </property>
          <widget class="QWidget" name="tab_11">
           <attribute name="title">
@@ -1611,13 +1611,6 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QCheckBox" name="checkBox">
-                      <property name="text">
-                       <string>IsTransparent</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
                      <widget class="QPushButton" name="persmap_load_button">
                       <property name="toolTip">
                        <string/>
@@ -1956,7 +1949,11 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
           <attribute name="title">
            <string>8</string>
           </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout_7"/>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QWidget" name="widget_7" native="true"/>
+           </item>
+          </layout>
          </widget>
          <widget class="QWidget" name="tab_9">
           <attribute name="title">

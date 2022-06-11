@@ -2,6 +2,7 @@ import numpy as np
 import imageio
 import matplotlib.pyplot as plt
 import scipy.ndimage as img
+from PIL import Image
 
 def delta1(r, sigma):
     return np.where(r < sigma, 1 - r/sigma, 0)
@@ -162,6 +163,20 @@ def radial_blur_effect(arrF, sigma):
 ####################################################################################
 
 def perspective_mapping(arrF, arrH, u_ul, u_ur, u_ll, u_lr, debug=False):
+    if len(arrF.shape)==2 and len(arrH.shape)==2:
+        return perspective_mapping_(arrF, arrH, u_ul, u_ur, u_ll, u_lr, debug)
+    else:
+        arrF_ = Image.fromarray((arrF*255).astype(np.uint8)).convert(mode="RGB")
+        arrF_ = np.array(arrF_) / 255.0
+        arrH_ = Image.fromarray((arrH*255).astype(np.uint8)).convert(mode="RGB")
+        arrH_ = np.array(arrH_) / 255.0
+
+        output = []
+        for i in range(3):
+            output.append( perspective_mapping_(arrF_[:,:,i], arrH_[:,:,i], u_ul, u_ur, u_ll, u_lr, debug) )
+        return np.stack(output, axis=2)
+
+def perspective_mapping_(arrF, arrH, u_ul, u_ur, u_ll, u_lr, debug=False):
     M, N = arrH.shape
     u, v = np.meshgrid(np.arange(N), np.arange(M))
     matX = np.stack((u, v)).astype(float)
@@ -207,7 +222,7 @@ def perspective_mapping(arrF, arrH, u_ul, u_ur, u_ll, u_lr, debug=False):
 
     newArr = arrH.copy()
     newArr[mask] = arrG[mask]
-    return newArr
+    return np.clip(newArr, 0, 1)
 
 def perspective_mapping_transparent(arrF, arrH, u_ul, u_ur, u_ll, u_lr, debug=False):
     M, N = arrH.shape

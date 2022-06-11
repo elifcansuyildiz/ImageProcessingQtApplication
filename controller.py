@@ -99,7 +99,7 @@ class MouseDetector(QObject):
     def eventFilter(self, obj, event):
         if event.type() == QEvent.MouseButtonPress:
             if isinstance(obj, QGraphicsView):
-                print('mouse pressed. ObjectName: ', obj.objectName())
+                #print('mouse pressed. ObjectName: ', obj.objectName())
                 self.getPos(event)
                 scene_position = obj.mapToScene(int(event.position().x()), int(event.position().y()))
 
@@ -109,15 +109,13 @@ class MouseDetector(QObject):
                 if self.app.select_y_spinbox is not None:
                     self.app.select_y_spinbox.setValue(scene_position.y())
                     self.app.select_y_spinbox = None
-
-                print(scene_position)
+                #print(scene_position)
         return super(MouseDetector, self).eventFilter(obj, event)
 
     def getPos(self, event):
         x = event.position().x()
         y = event.position().y()
-        print(x)
-        print(y)
+        #print(x, y)
 
 
 class MyApplication():
@@ -163,7 +161,8 @@ class MyApplication():
         self.radial_blur_effect_parameters = [self.window.radial_sigma_slider, self.window.radial_sigma_spinbox]
 
         self.pers_mapping_parameters = [self.window.persmap_x1_spinbox, self.window.persmap_y1_spinbox, self.window.persmap_x2_spinbox, self.window.persmap_y2_spinbox,
-                                        self.window.persmap_x3_spinbox, self.window.persmap_y3_spinbox, self.window.persmap_x4_spinbox, self.window.persmap_y4_spinbox]
+                                        self.window.persmap_x3_spinbox, self.window.persmap_y3_spinbox, self.window.persmap_x4_spinbox, self.window.persmap_y4_spinbox,
+                                        self.window.persmap_select1_button, self.window.persmap_select2_button, self.window.persmap_select3_button, self.window.persmap_select4_button]
 
         self.square_eye_effect_parameters = [self.window.square_eye_x_slider, self.window.square_eye_y_slider, self.window.square_eye_sigma_slider, self.window.square_eye_p_slider,
                                          self.window.square_eye_x_spinbox, self.window.square_eye_y_spinbox, self.window.square_eye_sigma_spinbox, self.window.square_eye_p_spinbox]
@@ -290,7 +289,6 @@ class MyApplication():
         w.persmap_select3_button.clicked.connect(lambda l: self.pers_mapping_select_button_event(w.persmap_x3_spinbox, w.persmap_y3_spinbox))
         w.persmap_select4_button.clicked.connect(lambda l: self.pers_mapping_select_button_event(w.persmap_x4_spinbox, w.persmap_y4_spinbox))
 
-
         ######################### SQUARE EYE EFFECT CONTROLLERS ##################################
         w.square_eye_x_spinbox.valueChanged.connect(lambda l: w.square_eye_x_slider.setValue(w.square_eye_x_spinbox.value()))
         w.square_eye_x_slider.valueChanged.connect(lambda l: w.square_eye_x_spinbox.setValue(w.square_eye_x_slider.value()))
@@ -355,7 +353,6 @@ class MyApplication():
         elif effect_name=="pers_mapping":
             if self.persmap_image is not None:
                 u_ul = (self.parameters[effect_name]["x1"], self.parameters[effect_name]["y1"])
-                print(u_ul)
                 u_ur = (self.parameters[effect_name]["x2"], self.parameters[effect_name]["y2"])
                 u_ll = (self.parameters[effect_name]["x3"], self.parameters[effect_name]["y3"])
                 u_lr = (self.parameters[effect_name]["x4"], self.parameters[effect_name]["y4"])
@@ -373,12 +370,9 @@ class MyApplication():
     @Slot(object)
     def update_image_view(self, output_image):
         self.preview_image = output_image.copy()
-        print(output_image.min(), output_image.max())
 
         if np.issubdtype(output_image.dtype, np.floating):
             output_image = (output_image*255).astype(np.uint8)
-
-        #self.image = output_image
 
         view_image = ImageQt.ImageQt( Image.fromarray(output_image) ) # convert output_image to qimage
         pixmap = QPixmap.fromImage(view_image)
@@ -533,7 +527,26 @@ class MyApplication():
 
     @Slot()
     def undo_button_event(self):
-        print("undone")
+        if len(self.images_stack)>1:
+            self.images_stack.pop()
+            self.image = self.images_stack[-1][1].copy()
+            view_image = self.images_stack[-1][1].copy()  # To view image on the GraphicView
+
+            if np.issubdtype(view_image.dtype, np.floating):
+                view_image = (view_image*255).astype(np.uint8)
+
+            view_image = ImageQt.ImageQt( Image.fromarray(view_image) ) # convert view_image to qimage
+            pixmap = QPixmap.fromImage(view_image)
+            self.scene = QGraphicsScene()
+            self.scene.addPixmap(pixmap)
+            self.window.graphicsView.setScene(self.scene)
+            item = self.window.graphicsView.items()
+            self.window.graphicsView.fitInView(item[0],Qt.KeepAspectRatio)
+
+            print("----------------------->",len(self.images_stack))
+            if len(self.images_stack)==1:
+                self.disable_buttons([self.window.undo_button])
+
 
     @Slot()
     def dashboard_clicked_event(self, position, column):
@@ -632,6 +645,7 @@ class MyApplication():
             widget.setEnabled(False)
         self.window.square_eye_apply_button.setEnabled(False)
         self.window.undo_button.setEnabled(True)
+
 
 
     def image_read(self, file_name, pilmode='RGB', arrtype=np.float):

@@ -293,19 +293,31 @@ def square_eye_effect(arrF, vecC, sigma, p):
 
 ####################################################################################
 
+from scipy.ndimage import median_filter as scipy_median_filter
+import cv2
+
 def median_filter(arrF, size):
-    arrF_ = Image.fromarray((arrF*255).astype(np.uint8)).convert(mode="RGB")
-    output = arrF.filter(ImageFilter.MedianFilter(size = size))
-    output = np.array(output) / 255.0
+    if size<=0:
+        return arrF
+    size = int((size//2)*2)+1
+    #arrF_ = Image.fromarray((arrF*255).astype(np.uint8)).convert(mode="L")
+    #output = arrF_.filter(ImageFilter.MedianFilter(size = size))
+    #output = np.array(output) / 255.0
+    output = scipy_median_filter(arrF, size)
     return np.clip(output, 0, 1)
 
+
 def gaussian_filter(arrF, radius):
-    arrF_ = Image.fromarray((arrF*255).astype(np.uint8)).convert(mode="RGB")
-    output = arrF.filter(ImageFilter.GaussianBlur(radius = radius))
+    if radius<=0:
+        return arrF
+    arrF_ = Image.fromarray((arrF*255).astype(np.uint8)).convert(mode="L")
+    output = arrF_.filter(ImageFilter.GaussianBlur(radius = radius))
     output = np.array(output) / 255.0
     return np.clip(output, 0, 1)
 
 def mean_filter(arrF, size):
+    if size<=0:
+        return arrF
     # recursive mean filtering algorithm
     def rowMeanFilterRec(arrF, m):
         f = np.pad(arrF, ((0,0), (m,m))) # padding on left and right for m pixels
@@ -314,11 +326,14 @@ def mean_filter(arrF, size):
         g = np.cumsum((-f1 + f2), axis=1)
         return g[:, m:-m] / m # doing the division here is important for numerical accuracy
 
-    arrG = rowMeanFilterRec(arrF, size).T
-    arrG = rowMeanFilterRec(arrG, size).T
+    arrG = rowMeanFilterRec(arrF, int(size)).T
+    arrG = rowMeanFilterRec(arrG, int(size)).T
     return np.clip(arrG, 0, 1)
 
 def bilateral_filter(arrF, sigma, rho):
+    return cv2.bilateralFilter(arrF.astype(np.float32), -1, sigma, rho)
+
+def bilateral_filter_(arrF, sigma, rho):
     m = int(np.ceil((2.575 * sigma) * 2 + 1))
     
     # Create gaussian kernel

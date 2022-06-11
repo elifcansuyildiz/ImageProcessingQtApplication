@@ -16,6 +16,8 @@ from queue import Queue
 from PySide6.QtCore import QRunnable, Slot, QThreadPool, Signal, QObject, QMutex
 from threading import Event
 
+import traceback
+
 import model
 
 class WorkerSignals(QObject):
@@ -50,22 +52,26 @@ class Worker(QRunnable):
                 params = self.params
                 self.mutex.unlock()
 
-                if len(params[0].shape)==2 or not self.split_dimensions:
-                    output = f(*params)
-                elif len(params[0].shape)==3:
-                    finished_events = []
-                    output = []
-                    for i in range(params[0].shape[2]):
-                        output.append(None)
-                        e = Event()
-                        finished_events.append(e)
-                        params_ = (params[0][:,:,i], *(params[1:]))
-                        temp_worker = TemporaryWorker(f, params_, output, i, e)
-                        self.threadpool.start(temp_worker)
-                    for e in finished_events:
-                        e.wait()
-                    output = np.stack(output, axis=2)
-                self.signals.processed.emit(np.array(output))
+                try:
+                    if len(params[0].shape)==2 or not self.split_dimensions:
+                        output = f(*params)
+                    elif len(params[0].shape)==3:
+                        finished_events = []
+                        output = []
+                        for i in range(params[0].shape[2]):
+                            output.append(None)
+                            e = Event()
+                            finished_events.append(e)
+                            params_ = (params[0][:,:,i], *(params[1:]))
+                            temp_worker = TemporaryWorker(f, params_, output, i, e)
+                            self.threadpool.start(temp_worker)
+                        for e in finished_events:
+                            e.wait()
+                        output = np.stack(output, axis=2)
+                    self.signals.processed.emit(np.array(output))
+                except Exception:
+                    exc_info = sys.exc_info()
+                    traceback.print_exception(*exc_info)
         print("Worker stopped")
 
     @Slot(object, object)
@@ -259,8 +265,8 @@ class MyApplication():
         w.swirl_y_slider.valueChanged.connect(lambda l: w.swirl_y_spinbox.setValue(w.swirl_y_slider.value()))
         w.swirl_y_spinbox.valueChanged.connect(lambda l: self.update_parameter("swirl", "y", w.swirl_y_spinbox.value()))
 
-        w.swirl_sigma_spinbox.valueChanged.connect(lambda l: w.swirl_sigma_slider.setValue(w.swirl_sigma_spinbox.value()))
-        w.swirl_sigma_slider.valueChanged.connect(lambda l: w.swirl_sigma_spinbox.setValue(w.swirl_sigma_slider.value()))
+        w.swirl_sigma_spinbox.valueChanged.connect(lambda l: w.swirl_sigma_slider.setValue(w.swirl_sigma_spinbox.value()*100))
+        w.swirl_sigma_slider.valueChanged.connect(lambda l: w.swirl_sigma_spinbox.setValue(w.swirl_sigma_slider.value()/100))
         w.swirl_sigma_spinbox.valueChanged.connect(lambda l: self.update_parameter("swirl", "sigma", w.swirl_sigma_spinbox.value()))
 
         w.swirl_magnitude_spinbox.valueChanged.connect(lambda l: w.swirl_magnitude_slider.setValue(w.swirl_magnitude_spinbox.value()))
@@ -364,7 +370,7 @@ class MyApplication():
         self.parameters[effect_name][parameter_name] = value
         if self.image is not None:
             self.update_image(effect_name)
-            print("update_image_function called")
+            #print("update_image_function called")
 
     def update_image(self, effect_name):
         if effect_name=="fisheye":
@@ -442,7 +448,7 @@ class MyApplication():
 
     def get_default_parameters(self):
         parameters = {"fisheye": {"x": 0, "y": 0, "sigma": 1.0}, 
-                      "swirl": {"x": 0, "y": 0, "sigma": 0.1, "magnitude":0},
+                      "swirl": {"x": 0, "y": 0, "sigma": 0.01, "magnitude":0},
                       "waves": {"amplitude": 0.1, "frequency": 0.1, "phase": 0},
                       "cylinder": {"angle": 0.0},
                       "radial_blur": {"sigma": 0.1},
@@ -465,7 +471,7 @@ class MyApplication():
             button.setEnabled(True)
 
     def set_parameter_limits(self):
-        print("Set max min limits of slider and spinbox")
+        print("After loading an image, max min limits of slider and spinbox have been set")
 
         w = self.window
         self.set_limits([w.fisheye_x_slider, w.fisheye_y_slider, w.fisheye_sigma_slider,
@@ -497,8 +503,10 @@ class MyApplication():
                 widget.setMaximum(max_x)
             elif widget.accessibleName() == "y":
                 widget.setMaximum(max_y)
-            elif widget.accessibleName() == "amplitude" or widget.accessibleName()=="frequency" or widget.accessibleName()=="swirl_sigma" or widget.accessibleName()=="radial_sigma" or widget.accessibleName()=="p_value":
+            elif widget.accessibleName() == "amplitude" or widget.accessibleName()=="frequency" or widget.accessibleName()=="radial_sigma" or widget.accessibleName()=="p_value":
                 widget.setMinimum(0.1)
+            elif widget.accessibleName()=="swirl_sigma":
+                widget.setMinimum(0.01)
             elif widget.accessibleName() == "cylinder_angle":
                 widget.setMaximum(360.0)
             elif widget.accessibleName()=="fisheye_sigma" or widget.accessibleName()=="squareeye_sigma":
@@ -534,10 +542,12 @@ class MyApplication():
                 #self.image = self.image_read(self.image_file_name[0], pilmode="RGB") / 255.0
                 self.image = Image.open(self.image_file_name[0])
                 self.image = np.array(self.image) / 255.0
+                if len(self.images_stack)==1:
+                    self.images_stack.pop()
                 self.images_stack.append(("original image",self.image))
                 #plt.imshow(self.image, cmap="gray")
                 #plt.show()
-                print(self.image.shape)
+                #print(self.image.shape)
 
                 # enable the buttons that were disabled in the beginning
                 self.enable_buttons([w.save_button, w.reset_button,
@@ -551,7 +561,6 @@ class MyApplication():
                 self.set_parameter_limits()
 
             elif graphicsView.accessibleName()=="persmap_graphicsView":
-                print("girdi")
                 self.persmap_image = Image.open(self.image_file_name[0])
                 self.persmap_image = np.array(self.persmap_image) / 255.0
                 self.enable_buttons([w.persmap_apply_button])
@@ -588,8 +597,6 @@ class MyApplication():
             self.persmap_image = None
             self.window.persmap_apply_button.setEnabled(False)
 
-        print("reseted")
-
     @Slot()
     def undo_button_event(self):
         if len(self.images_stack)>1:
@@ -608,7 +615,7 @@ class MyApplication():
             item = self.window.graphicsView.items()
             self.window.graphicsView.fitInView(item[0],Qt.KeepAspectRatio)
 
-            print("----------------------->",len(self.images_stack))
+            #print("----------------------->",len(self.images_stack))
             if len(self.images_stack)==1:
                 self.disable_buttons([self.window.undo_button])
 
@@ -622,7 +629,7 @@ class MyApplication():
             self.current_tab_idx = self.effects_to_tab_idx[item_name]
             self.current_tab_name = item_name
             # enables the buttons and parameters if the effect is revisited after applying
-            if self.image is not None:
+            if self.image is not None and item_name!="About":
                 self.tabs_to_apply_buttons_and_params[item_name]["button"].setEnabled(True)
                 for widget in self.tabs_to_apply_buttons_and_params[item_name]["params"]:
                     widget.setEnabled(True)
@@ -633,7 +640,6 @@ class MyApplication():
     def fisheye_effect_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("fish eye effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.fisheye_effect_parameters:
             widget.setEnabled(False)
@@ -644,7 +650,6 @@ class MyApplication():
     def swirl_effect_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("swirl effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.swirl_effect_parameters:
             widget.setEnabled(False)
@@ -655,7 +660,6 @@ class MyApplication():
     def waves_effect_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("waves effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.waves_effect_parameters:
             widget.setEnabled(False)
@@ -666,7 +670,6 @@ class MyApplication():
     def cylinder_effect_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("cylinder effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.cylinder_effect_parameters:
             widget.setEnabled(False)
@@ -677,7 +680,6 @@ class MyApplication():
     def radial_blur_effect_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("radial blur effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.radial_blur_effect_parameters:
             widget.setEnabled(False)
@@ -693,7 +695,6 @@ class MyApplication():
     def pers_mapping_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("pers mapping effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.pers_mapping_parameters:
             widget.setEnabled(False)
@@ -704,7 +705,6 @@ class MyApplication():
     def square_eye_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("square eye effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.square_eye_effect_parameters:
             widget.setEnabled(False)
@@ -715,7 +715,6 @@ class MyApplication():
     def gaussian_blur_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("gaussian blur effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.gaussian_blur_parameters:
             widget.setEnabled(False)
@@ -726,7 +725,6 @@ class MyApplication():
     def median_blur_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("median blur effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.median_blur_parameters:
             widget.setEnabled(False)
@@ -737,7 +735,6 @@ class MyApplication():
     def mean_blur_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("mean blur effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.mean_blur_parameters:
             widget.setEnabled(False)
@@ -748,7 +745,6 @@ class MyApplication():
     def bilateral_filter_apply_button_event(self):
         self.image = self.preview_image.copy()
         self.images_stack.append(("bilateral filter effect", self.image))  # added to the stack
-        print(self.images_stack)
 
         for widget in self.gaussian_blur_parameters:
             widget.setEnabled(False)
@@ -767,7 +763,7 @@ class MyApplication():
         return imageio.imread(file_name, pilmode=pilmode).astype(arrtype)
 
     def image_write(self, image, file_name, arrtype=np.uint8):
-        print(image.dtype)
+        #print(image.dtype)
         imageio.imwrite(file_name, np.array(image).astype(arrtype))
 
 

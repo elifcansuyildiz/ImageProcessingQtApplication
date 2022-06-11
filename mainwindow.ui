@@ -201,7 +201,7 @@
           <string>tab_button</string>
          </property>
          <property name="currentIndex">
-          <number>8</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab_11">
           <attribute name="title">
@@ -727,6 +727,12 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               <widget class="QSlider" name="swirl_sigma_slider">
                <property name="accessibleName">
                 <string>swirl_sigma</string>
+               </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
+               <property name="value">
+                <number>1</number>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -1986,13 +1992,35 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="accessibleName">
+                 <string>median_slider</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>41</number>
+                </property>
+                <property name="singleStep">
+                 <number>5</number>
+                </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="median_size_spinbox"/>
+               <widget class="QDoubleSpinBox" name="median_size_spinbox">
+                <property name="minimum">
+                 <double>1.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>41.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>2.000000000000000</double>
+                </property>
+               </widget>
               </item>
               <item>
                <spacer name="horizontalSpacer_54">
@@ -2119,6 +2147,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                <property name="accessibleName">
                 <string>y</string>
                </property>
+               <property name="maximum">
+                <number>20</number>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -2168,6 +2199,9 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                <property name="accessibleName">
                 <string>x</string>
                </property>
+               <property name="maximum">
+                <number>50</number>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -2200,10 +2234,18 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
               </spacer>
              </item>
              <item row="0" column="3">
-              <widget class="QDoubleSpinBox" name="bilateral_sigma_spinbox"/>
+              <widget class="QDoubleSpinBox" name="bilateral_sigma_spinbox">
+               <property name="maximum">
+                <double>50.000000000000000</double>
+               </property>
+              </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QDoubleSpinBox" name="bilateral_rho_spinbox"/>
+              <widget class="QDoubleSpinBox" name="bilateral_rho_spinbox">
+               <property name="maximum">
+                <double>20.000000000000000</double>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>

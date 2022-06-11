@@ -143,7 +143,7 @@ class MyApplication():
         self.effects_to_tab_idx = {"Fish Eye Effect":1, "Swirl Effect":2, "Waves Effect":3, 
                                    "Cylinder Anamorphosis":4, "Radial Blur Effect":5,
                                    "Perspective Mapping":6, "Square Eye Effect":7, "Median Blurring":8,
-                                   "Gaussian Filtering":9, "Bilateral Filter":10, "About":0}
+                                   "Gaussian Filtering":9, "Bilateral Filter":10, "Mean Filter":11, "About":0}
 
         self.parameters = self.get_default_parameters()
 
@@ -167,6 +167,15 @@ class MyApplication():
         self.square_eye_effect_parameters = [self.window.square_eye_x_slider, self.window.square_eye_y_slider, self.window.square_eye_sigma_slider, self.window.square_eye_p_slider,
                                          self.window.square_eye_x_spinbox, self.window.square_eye_y_spinbox, self.window.square_eye_sigma_spinbox, self.window.square_eye_p_spinbox]
 
+        self.median_blur_parameters = [self.window.median_size_slider, self.window.median_size_spinbox]
+        
+        self.gaussian_blur_parameters = [self.window.gaussian_radius_slider, self.window.gaussian_radius_spinbox]
+
+        self.bilateral_filter_parameters = [self.window.bilateral_sigma_slider, self.window.bilateral_sigma_spinbox,
+                                            self.window.bilateral_rho_slider, self.window.bilateral_rho_spinbox]
+
+        self.mean_blur_parameters = [self.window.mean_size_slider, self.window.mean_size_spinbox]
+
         self.tabs_to_apply_buttons_and_params = {
                                       "Fish Eye Effect": {"button":self.window.fisheye_apply_button, "params":self.fisheye_effect_parameters},
                                       "Swirl Effect": {"button":self.window.swirl_apply_button, "params":self.swirl_effect_parameters},
@@ -174,7 +183,12 @@ class MyApplication():
                                       "Cylinder Anamorphosis": {"button":self.window.cylinder_apply_button, "params":self.cylinder_effect_parameters},
                                       "Radial Blur Effect": {"button":self.window.radial_apply_button, "params":self.radial_blur_effect_parameters},
                                       "Perspective Mapping": {"button":self.window.persmap_apply_button, "params":self.pers_mapping_parameters},
-                                      "Square Eye Effect":{"button":self.window.square_eye_apply_button, "params":self.square_eye_effect_parameters}}
+                                      "Square Eye Effect":{"button":self.window.square_eye_apply_button, "params":self.square_eye_effect_parameters},
+                                      "Median Blurring": {"button": self.window.median_apply_button, "params": self.median_blur_parameters},
+                                      "Gaussian Filtering": {"button": self.window.gaussian_apply_button, "params": self.gaussian_blur_parameters},
+                                      "Bilateral Filter": {"button": self.window.bilateral_apply_button, "params": self.bilateral_filter_parameters},
+                                      "Mean Filter": {"button": self.window.mean_apply_button, "params": self.mean_blur_parameters}
+                                      }
 
         self.mainwindow_setup()
         self.window.show()
@@ -198,7 +212,9 @@ class MyApplication():
                               w.fisheye_apply_button, w.swirl_apply_button,
                               w.waves_apply_button, w.cylinder_apply_button,
                               w.radial_apply_button, w.persmap_apply_button,
-                              w.square_eye_apply_button])
+                              w.square_eye_apply_button, w.median_apply_button,
+                              w.gaussian_apply_button, w.bilateral_apply_button,
+                              w.mean_apply_button])
 
         pixmap = QPixmap("star_white.png")
         w.icon_label.setScaledContents(True)
@@ -306,6 +322,30 @@ class MyApplication():
         w.square_eye_p_slider.valueChanged.connect(lambda l: w.square_eye_p_spinbox.setValue(w.square_eye_p_slider.value()))
         w.square_eye_p_spinbox.valueChanged.connect(lambda l: self.update_parameter("square_eye", "p_value", w.square_eye_p_spinbox.value()))
 
+        ######################### MEDIAN BLURRING CONTROLLERS ##################################
+        w.median_size_spinbox.valueChanged.connect(lambda l: w.median_size_slider.setValue(w.median_size_spinbox.value()))
+        w.median_size_slider.valueChanged.connect(lambda l: w.median_size_spinbox.setValue(w.median_size_slider.value()))
+        w.median_size_spinbox.valueChanged.connect(lambda l: self.update_parameter("median", "size", w.median_size_spinbox.value()))
+
+        ######################### GAUSSIAN FILTERING CONTROLLERS ##################################
+        w.gaussian_radius_spinbox.valueChanged.connect(lambda l: w.gaussian_radius_slider.setValue(w.gaussian_radius_spinbox.value()))
+        w.gaussian_radius_slider.valueChanged.connect(lambda l: w.gaussian_radius_spinbox.setValue(w.gaussian_radius_slider.value()))
+        w.gaussian_radius_spinbox.valueChanged.connect(lambda l: self.update_parameter("gaussian", "radius", w.gaussian_radius_spinbox.value()))
+
+        ######################### BILATERAL FILTER CONTROLLERS ##################################
+        w.bilateral_sigma_spinbox.valueChanged.connect(lambda l: w.bilateral_sigma_slider.setValue(w.bilateral_sigma_spinbox.value()))
+        w.bilateral_sigma_slider.valueChanged.connect(lambda l: w.bilateral_sigma_spinbox.setValue(w.bilateral_sigma_slider.value()))
+        w.bilateral_sigma_spinbox.valueChanged.connect(lambda l: self.update_parameter("bilateral", "sigma", w.bilateral_sigma_spinbox.value()))
+
+        w.bilateral_rho_spinbox.valueChanged.connect(lambda l: w.bilateral_rho_slider.setValue(w.bilateral_rho_spinbox.value()))
+        w.bilateral_rho_slider.valueChanged.connect(lambda l: w.bilateral_rho_spinbox.setValue(w.bilateral_rho_slider.value()))
+        w.bilateral_rho_spinbox.valueChanged.connect(lambda l: self.update_parameter("bilateral", "rho", w.bilateral_rho_spinbox.value()))
+
+        ######################### MEAN FILTER CONTROLLERS ##################################
+        w.mean_size_spinbox.valueChanged.connect(lambda l: w.mean_size_slider.setValue(w.mean_size_spinbox.value()))
+        w.mean_size_slider.valueChanged.connect(lambda l: w.mean_size_spinbox.setValue(w.mean_size_slider.value()))
+        w.mean_size_spinbox.valueChanged.connect(lambda l: self.update_parameter("mean", "size", w.mean_size_spinbox.value()))
+
         ######################### APPLY BUTTON CONTROLLERS ##################################
         w.fisheye_apply_button.clicked.connect(lambda l: self.fisheye_effect_apply_button_event())
         w.swirl_apply_button.clicked.connect(lambda l: self.swirl_effect_apply_button_event())
@@ -314,6 +354,10 @@ class MyApplication():
         w.radial_apply_button.clicked.connect(lambda l: self.radial_blur_effect_apply_button_event())
         w.persmap_apply_button.clicked.connect(lambda l: self.pers_mapping_apply_button_event())
         w.square_eye_apply_button.clicked.connect(lambda l: self.square_eye_apply_button_event())
+        w.gaussian_apply_button.clicked.connect(lambda l: self.gaussian_blur_apply_button_event())
+        w.median_apply_button.clicked.connect(lambda l: self.median_blur_apply_button_event())
+        w.mean_apply_button.clicked.connect(lambda l: self.mean_blur_apply_button_event())
+        w.bilateral_apply_button.clicked.connect(lambda l: self.bilateral_filter_apply_button_event())
 
     @Slot()
     def update_parameter(self, effect_name, parameter_name, value):
@@ -365,6 +409,20 @@ class MyApplication():
             #output_image = model.square_eye_effect(self.image, center_point, sigma, p_value)
             self.worker.process(model.square_eye_effect, (self.image, center_point, sigma, p_value))
 
+        elif effect_name=="median":
+            self.worker.process(model.median_filter, (self.image, self.parameters[effect_name]["size"]))
+
+        elif effect_name=="gaussian":
+            self.worker.process(model.gaussian_filter, (self.image, self.parameters[effect_name]["radius"]))
+
+        elif effect_name=="bilateral":
+            sigma = self.parameters[effect_name]["sigma"]
+            rho = self.parameters[effect_name]["rho"]
+            self.worker.process(model.bilateral_filter, (self.image, sigma, rho))
+
+        elif effect_name=="mean":
+            self.worker.process(model.mean_filter, (self.image, self.parameters[effect_name]["size"]))
+
 
     # For threading
     @Slot(object)
@@ -382,7 +440,6 @@ class MyApplication():
         item = self.window.graphicsView.items()
         self.window.graphicsView.fitInView(item[0],Qt.KeepAspectRatio)
 
-
     def get_default_parameters(self):
         parameters = {"fisheye": {"x": 0, "y": 0, "sigma": 1.0}, 
                       "swirl": {"x": 0, "y": 0, "sigma": 0.1, "magnitude":0},
@@ -390,7 +447,11 @@ class MyApplication():
                       "cylinder": {"angle": 0.0},
                       "radial_blur": {"sigma": 0.1},
                       "pers_mapping": {"x1":0, "y1":0, "x2":0, "y2":0, "x3":0, "y3":0, "x4":0, "y4":0},
-                      "square_eye": {"x": 0, "y": 0, "sigma": 1.0, "p_value":0.1}}
+                      "square_eye": {"x": 0, "y": 0, "sigma": 1.0, "p_value":0.1},
+                      "median": {"size": 3.0},
+                      "gaussian": {"radius": 2.0},
+                      "bilateral": {"sigma": 100, "rho": 50},
+                      "mean": {"size": 3.0},}
         return parameters
 
     # disable buttons and input widgets
@@ -483,7 +544,9 @@ class MyApplication():
                                      w.fisheye_apply_button, w.swirl_apply_button,
                                      w.waves_apply_button, w.cylinder_apply_button,
                                      w.radial_apply_button,
-                                     w.square_eye_apply_button])
+                                     w.square_eye_apply_button,
+                                     w.gaussian_apply_button, w.median_apply_button,
+                                     w.mean_apply_button, w.bilateral_apply_button])
 
                 self.set_parameter_limits()
 
@@ -517,7 +580,9 @@ class MyApplication():
                                   self.window.fisheye_apply_button, self.window.swirl_apply_button,
                                   self.window.waves_apply_button, self.window.cylinder_apply_button,
                                   self.window.radial_apply_button, self.window.persmap_apply_button,
-                                  self.window.square_eye_apply_button])
+                                  self.window.square_eye_apply_button, self.window.gaussian_apply_button,
+                                  self.window.median_apply_button, self.window.mean_apply_button,
+                                  self.window.bilateral_apply_button])
         elif image=="persmap_image":
             self.window.persmap_graphicsView.setScene(None)
             self.persmap_image = None
@@ -646,6 +711,49 @@ class MyApplication():
         self.window.square_eye_apply_button.setEnabled(False)
         self.window.undo_button.setEnabled(True)
 
+    @Slot()
+    def gaussian_blur_apply_button_event(self):
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("gaussian blur effect", self.image))  # added to the stack
+        print(self.images_stack)
+
+        for widget in self.gaussian_blur_parameters:
+            widget.setEnabled(False)
+        self.window.gaussian_apply_button.setEnabled(False)
+        self.window.undo_button.setEnabled(True)
+
+    @Slot()
+    def median_blur_apply_button_event(self):
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("median blur effect", self.image))  # added to the stack
+        print(self.images_stack)
+
+        for widget in self.median_blur_parameters:
+            widget.setEnabled(False)
+        self.window.median_apply_button.setEnabled(False)
+        self.window.undo_button.setEnabled(True)
+
+    @Slot()
+    def mean_blur_apply_button_event(self):
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("mean blur effect", self.image))  # added to the stack
+        print(self.images_stack)
+
+        for widget in self.mean_blur_parameters:
+            widget.setEnabled(False)
+        self.window.mean_apply_button.setEnabled(False)
+        self.window.undo_button.setEnabled(True)
+
+    @Slot()
+    def bilateral_filter_apply_button_event(self):
+        self.image = self.preview_image.copy()
+        self.images_stack.append(("bilateral filter effect", self.image))  # added to the stack
+        print(self.images_stack)
+
+        for widget in self.gaussian_blur_parameters:
+            widget.setEnabled(False)
+        self.window.gaussian_apply_button.setEnabled(False)
+        self.window.undo_button.setEnabled(True)
 
 
     def image_read(self, file_name, pilmode='RGB', arrtype=np.float):

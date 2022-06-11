@@ -82,10 +82,8 @@ QLabel[accessibleName="info_label"] {
     color: #949697
 }
 
-
-
-
-
+/**********************************************************************************/
+/* https://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/ */
 QSlider::groove:horizontal {
 border: 1px solid #bbb;
 background: white;
@@ -142,3 +140,4 @@ background: #eee;
 border: 1px solid #aaa;
 border-radius: 4px;
 }
+/**********************************************************************************/

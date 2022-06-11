@@ -3,6 +3,7 @@ import imageio
 import matplotlib.pyplot as plt
 import scipy.ndimage as img
 from PIL import Image
+from PIL import Image, ImageFilter 
 
 def delta1(r, sigma):
     return np.where(r < sigma, 1 - r/sigma, 0)
@@ -292,6 +293,69 @@ def square_eye_effect(arrF, vecC, sigma, p):
 
 ####################################################################################
 
+def median_filter(arrF, size):
+    arrF_ = Image.fromarray((arrF*255).astype(np.uint8)).convert(mode="RGB")
+    output = arrF.filter(ImageFilter.MedianFilter(size = size))
+    output = np.array(output) / 255.0
+    return np.clip(output, 0, 1)
+
+def gaussian_filter(arrF, radius):
+    arrF_ = Image.fromarray((arrF*255).astype(np.uint8)).convert(mode="RGB")
+    output = arrF.filter(ImageFilter.GaussianBlur(radius = radius))
+    output = np.array(output) / 255.0
+    return np.clip(output, 0, 1)
+
+def mean_filter(arrF, size):
+    # recursive mean filtering algorithm
+    def rowMeanFilterRec(arrF, m):
+        f = np.pad(arrF, ((0,0), (m,m))) # padding on left and right for m pixels
+        f1 = np.roll(f, m//2+1, axis=1)
+        f2 = np.roll(f, -m//2+1, axis=1)
+        g = np.cumsum((-f1 + f2), axis=1)
+        return g[:, m:-m] / m # doing the division here is important for numerical accuracy
+
+    arrG = rowMeanFilterRec(arrF, size).T
+    arrG = rowMeanFilterRec(arrG, size).T
+    return np.clip(arrG, 0, 1)
+
+def bilateral_filter(arrF, sigma, rho):
+    m = int(np.ceil((2.575 * sigma) * 2 + 1))
+    
+    # Create gaussian kernel
+    # Source: # https://stackoverflow.com/questions/29731726/how-to-calculate-a-gaussian-kernel-matrix-efficiently-in-numpy
+    x = np.linspace(-(m - 1) / 2., (m - 1) / 2., m)
+    gauss_1d = np.exp(-0.5 * np.square(x) / np.square(sigma))
+    kernel_gaussian = np.outer(gauss_1d, gauss_1d)
+    kernel_gaussian = kernel_gaussian / np.sum(kernel_gaussian)
+    
+    # Pad arrF to avoid matrix size checks. This makes getting patches easier
+    # Here is a trick with the padding:
+    # Since padding values are very high computed kernel_rho will be very close to zero for padded values
+    # So, padding will not affect the outcome.
+    arrF_pad = np.pad(arrF, pad_width=m, mode="constant", constant_values=99999)
+    
+    # create output image
+    arrG = np.zeros_like(arrF)
+    
+    rows, cols = arrF.shape
+    for i in range(rows):
+        for j in range(cols):
+            center_value = arrF[i, j]
+            patch = arrF_pad[i+m//2:i+m+m//2, j+m//2:j+m+m//2]
+            
+            # compute kernel_rho but don't normalize it. rho and gaussian combination will be normalized.
+            kernel_rho = np.exp(-(center_value-patch)**2 / (2*(rho/255)**2)) 
+            
+            # combine two kernels then normalize
+            kernel = kernel_rho * kernel_gaussian
+            kernel = kernel / kernel.sum()
+            
+            # compute convolution for a single patch
+            arrG[i,j] = np.sum(kernel*patch)
+            
+    return arrG
+
+####################################################################################
 
 #out = fisheye(arrF, (350, 200), sigma=300)
 #axs[1].imshow(out / 255, cmap="gray", vmin=0, vmax=1)

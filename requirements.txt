@@ -1,0 +1,6 @@
+pyside6
+numpy
+imageio
+matplotlib
+scipy
+Pillow

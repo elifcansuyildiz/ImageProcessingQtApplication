@@ -208,9 +208,9 @@ class MyApplication():
         w.setWindowTitle("Image Processing Tool")
         w.resize(1000,800)
 
-        app_icon = QIcon()
-        app_icon.addFile('star_white.png')
-        w.setWindowIcon(app_icon)
+        #app_icon = QIcon()
+        #app_icon.addFile('star_white.png')
+        #w.setWindowIcon(app_icon)
 
         w.treeWidget.expandAll()
 
@@ -222,7 +222,7 @@ class MyApplication():
                               w.gaussian_apply_button, w.bilateral_apply_button,
                               w.mean_apply_button])
 
-        pixmap = QPixmap("star_white.png")
+        pixmap = QPixmap("icon.png")
         w.icon_label.setScaledContents(True)
         w.icon_label.setPixmap(pixmap)
 
@@ -242,6 +242,7 @@ class MyApplication():
 
         self.select_x_spinbox = None 
         self.select_y_spinbox = None 
+
 
         ######################### FISHEYE EFFECT CONTROLLERS #################################
         w.fisheye_x_spinbox.valueChanged.connect(lambda l: w.fisheye_x_slider.setValue(w.fisheye_x_spinbox.value()))

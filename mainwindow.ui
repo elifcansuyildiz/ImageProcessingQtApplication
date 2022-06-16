@@ -433,7 +433,7 @@ The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&
                    </property>
                    <property name="text">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;
-The &lt;a href=&quot;link-address&quot; style=&quot;text-decoration: none&quot;&gt;&lt;span style=&quot; color:#439ae5;&quot;&gt;youtube video&lt;/span&gt;&lt;/a&gt; for the functionalities of the tool &lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+The &lt;a href=&quot;https://youtu.be/8llrNf-44yw&quot; style=&quot;text-decoration: none&quot;&gt;&lt;span style=&quot; color:#439ae5;&quot;&gt;youtube video&lt;/span&gt;&lt;/a&gt; for the functionalities of the tool &lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="openExternalLinks">
                     <bool>true</bool>

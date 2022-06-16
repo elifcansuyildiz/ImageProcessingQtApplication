@@ -6,9 +6,9 @@
 
 This project provides a Qt user interface for some image processing methods so that the user can play with these methods interactively. Also, I hope this project to be a reference for developers since there are not many PySide6 examples on the Internet right now. 
 
-[Youtube video link](https://www.youtube.com/watch?v=dQw4w9WgXcQ) for the demo of this project: 
+[Youtube video link](https://youtu.be/8llrNf-44yw) for the demo of this project: 
 
-[![](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+[![](https://img.youtube.com/vi/8llrNf-44yw/0.jpg)](https://www.youtube.com/watch?v=8llrNf-44yw)
 
 
 

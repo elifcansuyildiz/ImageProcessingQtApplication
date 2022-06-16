@@ -4,3 +4,4 @@ imageio
 matplotlib
 scipy
 Pillow
+opencv-python

@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import scipy.ndimage as img
 from PIL import Image
 from PIL import Image, ImageFilter 
+from scipy.ndimage import median_filter as scipy_median_filter
+import cv2
 
 def delta1(r, sigma):
     return np.where(r < sigma, 1 - r/sigma, 0)
@@ -292,9 +294,6 @@ def square_eye_effect(arrF, vecC, sigma, p):
     return np.clip(arrG, 0, 1)
 
 ####################################################################################
-
-from scipy.ndimage import median_filter as scipy_median_filter
-import cv2
 
 def median_filter(arrF, size):
     if size<=0:

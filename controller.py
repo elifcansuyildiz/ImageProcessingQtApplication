@@ -208,9 +208,9 @@ class MyApplication():
         w.setWindowTitle("Image Processing Tool")
         w.resize(1000,800)
 
-        #app_icon = QIcon()
-        #app_icon.addFile('star_white.png')
-        #w.setWindowIcon(app_icon)
+        app_icon = QIcon()
+        app_icon.addFile('icon.png')
+        w.setWindowIcon(app_icon)
 
         w.treeWidget.expandAll()
 
